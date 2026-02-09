@@ -3,15 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Fiber Pro - Leads & Export</title>
+    <title>Calculadora Fiber Pro</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            // Substitua 'YOUR_PUBLIC_KEY' pela sua chave pública do EmailJS
+            emailjs.init("aIRf5A9QjsUCUiuNW");
+        })();
+    </script>
     <style>
-        /* Estilos de Impressão: Esconde tudo, menos o resultado */
+        /* Ajuste do fundo para não ocupar a tela inteira se não houver necessidade */
+        #fiberpro-app-container { 
+            background: #001529; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; /* Alinha no topo */
+            min-height: 100vh; /* Mantém o fundo azul na tela toda, mas o card flutua */
+        }
+
         @media print {
             body { background: white !important; }
-            #fiberpro-app { padding: 0 !important; }
-            .no-print, .tabs, .actions, .lead-form, .badge { display: none !important; }
-            .card { box-shadow: none !important; border: 1px solid #eee !important; width: 100% !important; max-width: 100% !important; }
-            .grid { grid-template-columns: 1fr !important; }
+            .no-print { display: none !important; }
+            .card { box-shadow: none !important; border: 1px solid #eee !important; width: 100% !important; }
         }
     </style>
 </head>
@@ -36,13 +50,15 @@
   <style>
     #fiberpro-app { background: #001529; padding: 40px 20px; min-height: 100vh; display: flex; justify-content: center; color: #333; }
     #fiberpro-app * { box-sizing:border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    /* Card agora ajusta a altura conforme o conteúdo */
     #fiberpro-app .card { 
-    background:#fff; 
-    border:1px solid rgba(0,0,0,.08);
-    width: 100%; 
-    border-radius: 18px; 
-    box-shadow: 0 10px 40px rgba(0,0,0,0.4); 
-    padding: 18px; 
+        background:#fff; 
+        border-radius: 18px; 
+        width: 100%; 
+        max-width: 1000px; 
+        padding: 18px; 
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        margin: auto;
     }
     #fiberpro-app h2{ margin:0 0 6px 0; font-size:20px; }
     #fiberpro-app p.sub{ margin:0; color: rgba(0,0,0,.7); font-size: 14px; line-height: 1.35; }
@@ -201,27 +217,39 @@
     window.print();
   });
 
-  // BOTÃO: E-MAIL (Simulação de Envio)
-  root.querySelector("#btn-email").addEventListener("click", function() {
-    const nome = inputs.userName.value;
-    const email = inputs.userEmail.value;
+// Localize a seção do root.querySelector("#btn-email").onclick e substitua por esta:
+root.querySelector("#btn-email").onclick = function() {
+    const emailDestinatario = inputs.userEmail.value; // Captura o e-mail do cliente
+    const nomeUsuario = inputs.userName.value;
 
-    if (!nome || !email) {
-      alert("Por favor, preencha nome e e-mail para receber os resultados.");
-      return;
+    if (!emailDestinatario) {
+        alert("Por favor, preencha o e-mail de destino antes de enviar.");
+        return;
     }
 
-    this.textContent = "Enviando...";
+    this.textContent = "A enviar...";
     this.disabled = true;
 
-    // Simula integração com backend
-    setTimeout(() => {
-      alert(`Sucesso, ${nome}! Os resultados foram enviados para ${email}.`);
-      this.textContent = "Receber por E-mail";
-      this.disabled = false;
-    }, 1500);
-  });
+    const templateParams = {
+        to_email: emailDestinatario, // O EmailJS usará este campo para o destinatário
+        user_name: nomeUsuario || "Cliente",
+        from_email: "sophia.alberton@gmail.com",
+        message: `Fiber Pro - Resultados\nFaturamento Atual: ${out.revNow.textContent}\nFaturamento Potencial: ${out.revFP.textContent}\nMultiplicador: ${out.factor.textContent}`,
+    };
 
+    // Usando seu Service ID: service_zd6gwj4 e Template ID: template_rvv0y31
+    emailjs.send('service_zd6gwj4', 'template_rvv0y31', templateParams)
+        .then(() => {
+           alert("E-mail enviado com sucesso para " + emailDestinatario + "!");
+           this.textContent = "Receber por E-mail";
+           this.disabled = false;
+        }, (err) => {
+           alert("Falha ao enviar e-mail. Verifique a configuração do EmailJS.");
+           console.error(err);
+           this.textContent = "Receber por E-mail";
+           this.disabled = false;
+        });
+};
   // BOTÃO: COPIAR
   root.querySelector("#btn-copy").addEventListener("click", function() {
     const texto = `Fiber Pro - Resultados\nFaturamento Atual: ${out.revNow.textContent}\nFaturamento Potencial: ${out.revFP.textContent}\nMultiplicador: ${out.factor.textContent}`;
