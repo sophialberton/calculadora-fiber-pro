@@ -12,6 +12,41 @@
         })();
     </script>
     <style>
+      @media print {
+    /* Remove fundos azuis e cores pesadas para economizar tinta e evitar bugs de layout */
+    body, #fiberpro-app, #fiberpro-app-container { 
+        background: white !important; 
+        min-height: auto !important; 
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Esconde elementos desnecessários na impressão */
+    .no-print, .tabs, .actions, .badge { 
+        display: none !important; 
+    }
+
+    /* Ajusta o card para ocupar a página inteira sem sombras */
+    #fiberpro-app .card { 
+        box-shadow: none !important; 
+        border: none !important; 
+        width: 100% !important; 
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Garante que a grid de resultados apareça corretamente */
+    #fiberpro-app .grid { 
+        display: block !important; 
+    }
+
+    /* Remove espaços vazios no topo */
+    .section {
+        margin: 0 !important;
+        padding: 10px !important;
+    }
+}
         /* Ajuste do fundo para não ocupar a tela inteira se não houver necessidade */
         #fiberpro-app-container { 
             background: #001529; 
