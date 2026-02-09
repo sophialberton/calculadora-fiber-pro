@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora Fiber Pro</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script type="text/javascript">
         (function() {
             // Substitua 'YOUR_PUBLIC_KEY' pela sua chave pública do EmailJS
@@ -252,34 +253,34 @@
     window.print();
   });
 
-// Localize a seção do root.querySelector("#btn-email").onclick e substitua por esta:
 root.querySelector("#btn-email").onclick = function() {
-    const emailDestinatario = inputs.userEmail.value; // Captura o e-mail do cliente
+    const emailDestinatario = inputs.userEmail.value;
     const nomeUsuario = inputs.userName.value;
 
     if (!emailDestinatario) {
-        alert("Por favor, preencha o e-mail de destino antes de enviar.");
+        alert("Por favor, preencha o e-mail.");
         return;
     }
 
-    this.textContent = "A enviar...";
+    this.textContent = "Enviando relatório...";
     this.disabled = true;
 
     const templateParams = {
-        to_email: emailDestinatario, // O EmailJS usará este campo para o destinatário
+        to_email: emailDestinatario,
         user_name: nomeUsuario || "Cliente",
-        from_email: "sophia.alberton@gmail.com",
-        message: `Fiber Pro - Resultados\nFaturamento Atual: ${out.revNow.textContent}\nFaturamento Potencial: ${out.revFP.textContent}\nMultiplicador: ${out.factor.textContent}`,
+        rev_now: out.revNow.textContent,
+        rev_fp: out.revFP.textContent,
+        factor: out.factor.textContent,
+        explain: out.explain.textContent
     };
 
-    // Usando seu Service ID: service_zd6gwj4 e Template ID: template_rvv0y31
     emailjs.send('service_zd6gwj4', 'template_rvv0y31', templateParams)
         .then(() => {
-           alert("E-mail enviado com sucesso para " + emailDestinatario + "!");
+           alert("Relatório enviado com sucesso para o corpo do e-mail!");
            this.textContent = "Receber por E-mail";
            this.disabled = false;
         }, (err) => {
-           alert("Falha ao enviar e-mail. Verifique a configuração do EmailJS.");
+           alert("Erro ao enviar.");
            console.error(err);
            this.textContent = "Receber por E-mail";
            this.disabled = false;
