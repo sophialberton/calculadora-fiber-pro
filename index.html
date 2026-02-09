@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Fiber Pro - Leads & Export</title>
+    <style>
+        /* Estilos de Impressão: Esconde tudo, menos o resultado */
+        @media print {
+            body { background: white !important; }
+            #fiberpro-app { padding: 0 !important; }
+            .no-print, .tabs, .actions, .lead-form, .badge { display: none !important; }
+            .card { box-shadow: none !important; border: 1px solid #eee !important; width: 100% !important; max-width: 100% !important; }
+            .grid { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="fiberpro-app"></div>
+
+<script>
+(function () {
+  const root = document.getElementById("fiberpro-app");
+
+  const toNumber = (v) => {
+    if (!v) return 0;
+    const s = String(v).trim().replace(/\./g, "").replace(",", ".");
+    return Number.isFinite(Number(s)) ? Number(s) : 0;
+  };
+
+  const formatBRL = (value) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+
+  root.innerHTML = `
+  
+  <style>
+    #fiberpro-app { background: #001529; padding: 40px 20px; min-height: 100vh; display: flex; justify-content: center; color: #333; }
+    #fiberpro-app * { box-sizing:border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    #fiberpro-app .card { 
+    background:#fff; 
+    border:1px solid rgba(0,0,0,.08);
+    width: 100%; 
+    border-radius: 18px; 
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4); 
+    padding: 18px; 
+    }
+    #fiberpro-app h2{ margin:0 0 6px 0; font-size:20px; }
+    #fiberpro-app p.sub{ margin:0; color: rgba(0,0,0,.7); font-size: 14px; line-height: 1.35; }
+    #fiberpro-app .tabs { display:flex; gap:10px; margin-bottom: 20px; }
+    #fiberpro-app .tab { padding: 10px 20px; border-radius: 20px; border: 1px solid #ddd; background: #f5f5f5; cursor: pointer; font-size: 13px; transition: 0.3s; }
+    #fiberpro-app .tab.active { background: #e6f7ff; border-color: #1890ff; color: #1890ff; font-weight: bold; }
+
+    #fiberpro-app .badge { 
+        display:inline-flex; 
+        gap:8px; 
+        flex-wrap:wrap; 
+        align-items:center;
+        padding: 8px 10px; 
+        border-radius: 999px; 
+        background: rgba(0,0,0,.06);
+        font-size: 12px; 
+        color: rgba(0,0,0,.72); 
+        margin-top: 12px;
+        padding: 9px 12px; 
+        margin-bottom: 15px; 
+    }
+
+    #fiberpro-app .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 25px; }
+    @media (max-width: 850px) { #fiberpro-app .grid { grid-template-columns: 1fr; } }
+
+    #fiberpro-app .section { background: #fafafa; border: 1px solid #f0f0f0; border-radius: 12px; padding: 20px; position: relative; }
+    #fiberpro-app .section h3{
+      margin:0 0 10px 0; font-size: 13px; text-transform: uppercase;
+      letter-spacing: .02em; color: rgba(0,0,0,.72);
+    }
+
+    #fiberpro-app .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    #fiberpro-app label { display: block; font-size: 11px; margin-bottom: 5px; color: #555; font-weight: 600; }
+    #fiberpro-app input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; outline: none; }
+    #fiberpro-app input:focus { border-color: #1890ff; }
+
+    #fiberpro-app .kpi { background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-bottom: 12px; }
+    #fiberpro-app .kpi .t { font-size: 12px; color: #777; margin-bottom: 4px; }
+    #fiberpro-app .kpi .v { font-size: 24px; font-weight: bold; color: #000; }
+
+    #fiberpro-app .lead-form { margin-top: 20px; border-top: 1px dashed #ddd; padding-top: 20px; }
+    #fiberpro-app .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    #fiberpro-app .btn { flex: 1; min-width: 140px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; background: #fff; font-weight: 600; font-size: 13px; transition: 0.2s; }
+    #fiberpro-app .btn-primary { background: #1890ff; color: #fff; border-color: #1890ff; }
+    #fiberpro-app .btn-primary:hover { background: #40a9ff; }
+    #fiberpro-app .btn-reset { border-color: #ff4d4f; color: #ff4d4f; }
+    #fiberpro-app .btn-copy { border-color: #4da8ff; color: #4da8ff; }
+
+    </style>
+
+  <div class="card">
+    <div class="no-print">
+        <h2>Calculadora Fiber Pro</h2>
+        <p class="sub">Descubra seu potencial de crescimento comparando seu cenário atual com o potencial usando Fiber Pro.</p>
+        <div class="badge">
+        <strong>Premissa:</strong>
+        <span>A cada <strong>30 min</strong> você finaliza <strong>1</strong> infraestrutura com Fiber Pro.</span>
+      </div>
+
+      <div class="tabs">
+            <div class="tab active" id="tab-digital">Conversão - Digital</div>
+            <div class="tab" id="tab-analogico">Conversão - Analógico</div>
+        </div>
+    </div>
+
+    <div class="grid">
+      <div class="section no-print">
+        <h3>Seu Cenário Atual</h3>
+        <div class="row">
+          <div><label>Quantidade de infraestruturas</label><input id="qty" type="number" value="1"></div>
+          <div><label>Tempo por infraestrutura (horas)</label><input id="hours" type="number" value="7"></div>
+          <div><label>Tempo por infraestrutura (minutos)</label><input id="minutes" type="number" value="0"></div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <div><label>Preço médio cobrado por infraestrutura (R$)</label><input id="price" type="text" value="552"></div>
+          <div><label>Tempo com Fiber Pro (min/infra)</label><input id="fiberMin" type="number" value="30"></div>
+        </div>
+
+        <div class="lead-form">
+            <label>Seu Nome</label>
+            <input id="userName" type="text" placeholder="Digite seu nome" style="margin-bottom:10px;">
+            <label>Seu E-mail</label>
+            <input id="userEmail" type="email" placeholder="email@exemplo.com">
+        </div>
+        
+        <div class="actions">
+          <button class="btn btn-primary" id="btn-email">Receber por E-mail</button>
+          <button class="btn" id="btn-print">Baixar / Imprimir</button>
+          <button class="btn btn-copy" id="btn-copy">Copiar</button>
+          <button class="btn btn-reset" id="btn-reset">Resetar</button>
+        </div>
+      </div>
+
+      <div class="section" id="result-area">
+        <h3>Potencial com Fiber Pro</h3>
+        <div class="kpi"><div class="t">Quantidade total (mesmo tempo total)</div><div class="v" id="outQtyFP">14</div></div>
+        <div class="kpi"><div class="t">Faturamento atual</div><div class="v" id="outRevNow">R$ 552,00</div></div>
+        <div class="kpi"><div class="t">Faturamento previsto com Fiber Pro</div><div class="v" id="outRevFP">R$ 7.728,00</div></div>
+        <div class="kpi"><div class="t">Você fatura mais de</div><div class="v" id="outFactor">14x</div></div>
+        <p style="font-size:12px; color:#666; line-height:1.4;" id="outExplain"></p>
+        <div id="print-footer" style="display:none; margin-top:20px; font-size:10px; color:#aaa; border-top:1px solid #eee; padding-top:10px;">
+            Gerado por Calculadora Fiber Pro em <span id="print-date"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
+
+  const inputs = {
+    qty: root.querySelector("#qty"),
+    hours: root.querySelector("#hours"),
+    minutes: root.querySelector("#minutes"),
+    price: root.querySelector("#price"),
+    fiberMin: root.querySelector("#fiberMin"),
+    userName: root.querySelector("#userName"),
+    userEmail: root.querySelector("#userEmail")
+  };
+
+  const out = {
+    qtyFP: root.querySelector("#outQtyFP"),
+    revNow: root.querySelector("#outRevNow"),
+    revFP: root.querySelector("#outRevFP"),
+    factor: root.querySelector("#outFactor"),
+    explain: root.querySelector("#outExplain")
+  };
+
+  function recalc() {
+    const qty = toNumber(inputs.qty.value);
+    const h = toNumber(inputs.hours.value);
+    const m = toNumber(inputs.minutes.value);
+    const price = toNumber(inputs.price.value);
+    const fiberMin = toNumber(inputs.fiberMin.value) || 1;
+
+    // Cálculo do tempo total que o usuário leva hoje
+    const tempoPorInfraOriginal = (h * 60) + m;
+    const totalMinutosAtual = qty * tempoPorInfraOriginal;
+    const totalHorasAtual = (totalMinutosAtual / 60).toFixed(1).replace(".", ",");
+
+    const qtyFP = totalMinutosAtual / fiberMin;
+    const revNow = qty * price;
+    const revFP = qtyFP * price;
+    const factor = revNow > 0 ? (revFP / revNow) : 0;
+
+    out.qtyFP.textContent = Math.floor(qtyFP);
+    out.revNow.textContent = formatBRL(revNow);
+    out.revFP.textContent = formatBRL(revFP);
+    out.factor.textContent = factor.toFixed(1).replace(".", ",") + "x";
+    
+    // A frase ajustada conforme seu pedido:
+    out.explain.textContent = `Com Fiber Pro (${fiberMin} min/infra), no mesmo tempo total você pode produzir ~${Math.floor(qtyFP)} infraestruturas. Tempo atual total: ${totalMinutosAtual} min (≈ ${totalHorasAtual} h).`;
+  }
+
+  // BOTÃO: IMPRIMIR / PDF
+  root.querySelector("#btn-print").addEventListener("click", () => {
+    root.querySelector("#print-date").textContent = new Date().toLocaleString();
+    window.print();
+  });
+
+  // BOTÃO: E-MAIL (Simulação de Envio)
+  root.querySelector("#btn-email").addEventListener("click", function() {
+    const nome = inputs.userName.value;
+    const email = inputs.userEmail.value;
+
+    if (!nome || !email) {
+      alert("Por favor, preencha nome e e-mail para receber os resultados.");
+      return;
+    }
+
+    this.textContent = "Enviando...";
+    this.disabled = true;
+
+    // Simula integração com backend
+    setTimeout(() => {
+      alert(`Sucesso, ${nome}! Os resultados foram enviados para ${email}.`);
+      this.textContent = "Receber por E-mail";
+      this.disabled = false;
+    }, 1500);
+  });
+
+  // BOTÃO: COPIAR
+  root.querySelector("#btn-copy").addEventListener("click", function() {
+    const texto = `Fiber Pro - Resultados\nFaturamento Atual: ${out.revNow.textContent}\nFaturamento Potencial: ${out.revFP.textContent}\nMultiplicador: ${out.factor.textContent}`;
+    navigator.clipboard.writeText(texto).then(() => {
+      this.textContent = "Copiado!";
+      setTimeout(() => this.textContent = "Copiar", 2000);
+    });
+  });
+
+  // RESET E TABS
+  root.querySelector("#btn-reset").addEventListener("click", () => {
+    inputs.qty.value=1; inputs.hours.value=7; inputs.minutes.value=0; inputs.price.value=552; recalc();
+  });
+
+  root.querySelector("#tab-digital").onclick = () => { 
+    root.querySelector("#tab-digital").classList.add("active");
+    root.querySelector("#tab-analogico").classList.remove("active");
+    inputs.hours.value=7; recalc(); 
+  };
+  root.querySelector("#tab-analogico").onclick = () => { 
+    root.querySelector("#tab-analogico").classList.add("active");
+    root.querySelector("#tab-digital").classList.remove("active");
+    inputs.hours.value=8; recalc(); 
+  };
+
+  [inputs.qty, inputs.hours, inputs.minutes, inputs.price, inputs.fiberMin].forEach(i => i.oninput = recalc);
+  recalc();
+})();
+</script>
+
+</body>
+</html>
