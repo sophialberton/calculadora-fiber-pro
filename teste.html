@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Fiber Pro</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script type="text/javascript" src="https://d335luupugsy2.cloudfront.net/js/rdstation-forms/stable/rdstation-forms.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("aIRf5A9QjsUCUiuNW");
+        })();
+    </script>
+    <style>
+      @media print {
+        body, #fiberpro-app, #fiberpro-app-container { background: white !important; min-height: auto !important; padding: 0 !important; margin: 0 !important; }
+        .no-print, .tabs, .actions, .badge { display: none !important; }
+        #fiberpro-app .card { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+        #fiberpro-app .grid { display: block !important; }
+        .section { margin: 0 !important; padding: 10px !important; }
+      }
+      #fiberpro-app-container { background: #001529; padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+      
+      /* ESTILO DO DESFOQUE (Bloco Cinza) */
+      .blur-results { filter: blur(8px); pointer-events: none; user-select: none; transition: 0.5s; opacity: 0.6; }
+      .unlocked { filter: blur(0) !important; pointer-events: auto !important; user-select: auto !important; opacity: 1 !important; }
+
+     /* MODAL BONITO E INTUITIVO */
+        #modal-rd { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0, 21, 41, 0.95); 
+            z-index: 10000; 
+            justify-content: center; 
+            align-items: center; 
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content { 
+            background: #fff; 
+            padding: 30px; 
+            border-radius: 20px; 
+            width: 90%; 
+            max-width: 450px; 
+            position: relative; 
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+        }
+
+        .modal-header img { max-width: 150px; margin-bottom: 15px; }
+        .modal-header h3 { color: #001529; font-size: 22px; margin: 0 0 10px 0; }
+        .modal-header p { color: #666; font-size: 14px; margin-bottom: 25px; line-height: 1.4; }
+
+        /* Força os campos do RD Station a aparecerem corretamente */
+        #rd-form-container label {
+            display: block !important;
+            text-align: left !important;
+            font-weight: bold !important;
+            margin-bottom: 5px !important;
+            font-size: 13px !important;
+            color: #333 !important;
+        }
+
+        #rd-form-container input {
+            margin-bottom: 15px !important;
+        }
+    </style>
+</head>
+<body>
+
+<div id="fiberpro-app"></div>
+
+<div id="modal-rd">
+    <div class="modal-content">
+        <span onclick="document.getElementById('modal-rd').style.display='none'" style="position:absolute; right:20px; top:15px; cursor:pointer; font-size:24px; color:#ccc;">&times;</span>
+        
+        <div class="modal-header">
+            <img src="https://fgm-mail.s3.amazonaws.com/guids/CABINET_18a6547c2de12f9ccdc695f577782fdb7329151adf1878556b85df63ab94923a/images/logofiberprocentralbranco.png" 
+                 alt="Logo Fiber Pro" style="background: #001529; padding: 10px; border-radius: 8px;">
+            <h3>Falta pouco!</h3>
+            <p>Identifique-se abaixo para liberar os resultados da sua simulação e receber o relatório completo.</p>
+        </div>
+
+        <div id="rd-form-container">
+            <div role="main" id="br-imp-calculadora-fiber-pro-a7a088d1f2686eafe4e4"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+  const root = document.getElementById("fiberpro-app");
+
+  const toNumber = (v) => {
+    if (!v) return 0;
+    const s = String(v).trim().replace(/\./g, "").replace(",", ".");
+    return Number.isFinite(Number(s)) ? Number(s) : 0;
+  };
+
+  const formatBRL = (value) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+
+  root.innerHTML = `
+  <style>
+    #fiberpro-app { background: #001529; padding: 40px 20px; min-height: 100vh; display: flex; justify-content: center; color: #333; }
+    #fiberpro-app * { box-sizing:border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    #fiberpro-app .card { background:#fff; border-radius: 18px; width: 100%; max-width: 1000px; padding: 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); margin: auto; }
+    #fiberpro-app h2{ margin:0 0 6px 0; font-size:20px; }
+    #fiberpro-app p.sub{ margin:0; color: rgba(0,0,0,.7); font-size: 14px; line-height: 1.35; }
+    #fiberpro-app .tabs { display:flex; gap:10px; margin-bottom: 20px; }
+    #fiberpro-app .tab { padding: 10px 20px; border-radius: 20px; border: 1px solid #ddd; background: #f5f5f5; cursor: pointer; font-size: 13px; transition: 0.3s; }
+    #fiberpro-app .tab.active { background: #e6f7ff; border-color: #1890ff; color: #1890ff; font-weight: bold; }
+    #fiberpro-app .badge { display:inline-flex; gap:8px; flex-wrap:wrap; align-items:center; padding: 8px 10px; border-radius: 999px; background: rgba(0,0,0,.06); font-size: 12px; color: rgba(0,0,0,.72); margin-top: 12px; margin-bottom: 15px; }
+    #fiberpro-app .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 25px; }
+    @media (max-width: 850px) { #fiberpro-app .grid { grid-template-columns: 1fr; } }
+    #fiberpro-app .section { background: #fafafa; border: 1px solid #f0f0f0; border-radius: 12px; padding: 20px; position: relative; }
+    #fiberpro-app .section h3{ margin:0 0 10px 0; font-size: 13px; text-transform: uppercase; letter-spacing: .02em; color: rgba(0,0,0,.72); }
+    #fiberpro-app .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    #fiberpro-app label { display: block; font-size: 11px; margin-bottom: 5px; color: #555; font-weight: 600; }
+    #fiberpro-app input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; outline: none; }
+    #fiberpro-app .kpi { background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-bottom: 12px; }
+    #fiberpro-app .kpi .t { font-size: 12px; color: #777; margin-bottom: 4px; }
+    #fiberpro-app .kpi .v { font-size: 24px; font-weight: bold; color: #000; }
+    #fiberpro-app .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    #fiberpro-app .btn { flex: 1; min-width: 140px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; background: #fff; font-weight: 600; font-size: 13px; transition: 0.2s; }
+    #fiberpro-app .btn-primary { background: #fadb14; color: #000; border-color: #fadb14; width: 100%; flex: none; }
+    #fiberpro-app .btn-primary:hover { background: #ffe58f; }
+    </style>
+
+  <div class="card">
+    <div class="no-print">
+        <h2>Calculadora Fiber Pro</h2>
+        <div class="badge"><strong>Premissa:</strong><span>A cada <strong>30 min</strong> você finaliza <strong>1</strong> infraestrutura com Fiber Pro.</span></div>
+        <div class="tabs"><div class="tab active" id="tab-digital">Conversão - Digital</div><div class="tab" id="tab-analogico">Conversão - Analógico</div></div>
+    </div>
+
+    <div class="grid">
+      <div class="section no-print">
+        <h3>Seu Cenário Atual</h3>
+        <div class="row">
+          <div><label>Quantidade de infraestruturas</label><input id="qty" type="number" value="1"></div>
+          <div><label>Tempo por infra (h)</label><input id="hours" type="number" value="7"></div>
+          <div><label>Tempo por infra (min)</label><input id="minutes" type="number" value="0"></div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <div><label>Preço médio (R$)</label><input id="price" type="text" value="552"></div>
+          <div><label>Tempo Fiber Pro (min)</label><input id="fiberMin" type="number" value="30"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="btn-visualizar">VISUALIZAR RESULTADOS</button>
+        </div>
+      </div>
+
+      <div class="section blur-results" id="result-area">
+        <h3>Potencial com Fiber Pro</h3>
+        <div class="kpi"><div class="t">Quantidade total</div><div class="v" id="outQtyFP">14</div></div>
+        <div class="kpi"><div class="t">Faturamento atual</div><div class="v" id="outRevNow">R$ 552,00</div></div>
+        <div class="kpi"><div class="t">Faturamento previsto</div><div class="v" id="outRevFP">R$ 7.728,00</div></div>
+        <div class="kpi"><div class="t">Você fatura mais de</div><div class="v" id="outFactor">14x</div></div>
+        <p style="font-size:12px; color:#666; line-height:1.4;" id="outExplain"></p>
+      </div>
+    </div>
+  </div>
+  `;
+
+  const inputs = { qty: root.querySelector("#qty"), hours: root.querySelector("#hours"), minutes: root.querySelector("#minutes"), price: root.querySelector("#price"), fiberMin: root.querySelector("#fiberMin") };
+  const out = { qtyFP: root.querySelector("#outQtyFP"), revNow: root.querySelector("#outRevNow"), revFP: root.querySelector("#outRevFP"), factor: root.querySelector("#outFactor"), explain: root.querySelector("#outExplain") };
+
+  function recalc() {
+    const qty = toNumber(inputs.qty.value);
+    const h = toNumber(inputs.hours.value);
+    const m = toNumber(inputs.minutes.value);
+    const price = toNumber(inputs.price.value);
+    const fiberMin = toNumber(inputs.fiberMin.value) || 1;
+
+    const tempoTotalMin = qty * ((h * 60) + m);
+    const qtyFP = tempoTotalMin / fiberMin;
+    const revNow = qty * price;
+    const revFP = qtyFP * price;
+    const factor = revNow > 0 ? (revFP / revNow) : 0;
+
+    out.qtyFP.textContent = Math.floor(qtyFP);
+    out.revNow.textContent = formatBRL(revNow);
+    out.revFP.textContent = formatBRL(revFP);
+    out.factor.textContent = factor.toFixed(1).replace(".", ",") + "x";
+    out.explain.textContent = `Com Fiber Pro, no mesmo tempo você produz ~${Math.floor(qtyFP)} infras.`;
+  }
+
+
+    // Ação do botão "Visualizar Resultados"
+    root.querySelector("#btn-visualizar").onclick = () => {
+        document.getElementById('modal-rd').style.display = 'flex';
+    };
+
+  // Listener RD Station para desbloquear
+  window.addEventListener('message', function(event) {
+    if (event.data.type === 'RDStationFormSubmitted' || event.data.action === 'form-submit') {
+      document.getElementById('modal-rd').style.display = 'none';
+      document.getElementById('result-area').classList.add('unlocked');
+      const btn = document.getElementById('btn-visualizar');
+      btn.textContent = "RESULTADOS LIBERADOS";
+      btn.style.background = "#52c41a";
+      btn.disabled = true;
+    }
+  });
+
+  // Tabs e Eventos
+  root.querySelector("#tab-digital").onclick = () => { inputs.hours.value=7; recalc(); };
+  root.querySelector("#tab-analogico").onclick = () => { inputs.hours.value=8; recalc(); };
+  [inputs.qty, inputs.hours, inputs.minutes, inputs.price, inputs.fiberMin].forEach(i => i.oninput = recalc);
+  
+  // Inicializa o form RD
+  new RDStationForms('br-imp-calculadora-fiber-pro-a7a088d1f2686eafe4e4', 'UA-XXXXX-X').createForm();
+  recalc();
+})();
+</script>
+</body>
+</html>
