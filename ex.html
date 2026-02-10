@@ -1,0 +1,162 @@
+<div id="fiberpro-app-container">
+    <div id="fiberpro-app"></div>
+</div>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script type="text/javascript">
+    (function() {
+        emailjs.init("aIRf5A9QjsUCUiuNW"); // Sua Public Key
+    })();
+</script>
+
+<script>
+(function () {
+  const root = document.getElementById("fiberpro-app");
+
+  const toNumber = (v) => {
+    if (!v) return 0;
+    const s = String(v).trim().replace(/\./g, "").replace(",", ".");
+    return Number.isFinite(Number(s)) ? Number(s) : 0;
+  };
+
+  const formatBRL = (value) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+
+  root.innerHTML = `
+  <style>
+    #fiberpro-app-container { background: #001529; padding: 20px; font-family: sans-serif; }
+    #fiberpro-app .card { background:#fff; border-radius: 18px; padding: 25px; max-width: 900px; margin: auto; }
+    #fiberpro-app .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+    @media (max-width: 768px) { #fiberpro-app .grid { grid-template-columns: 1fr; } }
+
+    /* Inputs */
+    #fiberpro-app label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #555; }
+    #fiberpro-app input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; }
+
+    /* Efeito Desfocado (Blur) */
+    .results-locked { filter: blur(8px); pointer-events: none; user-select: none; transition: 0.5s; }
+    .results-unlocked { filter: blur(0); pointer-events: auto; }
+
+    /* Modal / Pop-up */
+    #fiber-modal { 
+        display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; 
+        background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; 
+    }
+    .modal-content { 
+        background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; position: relative; 
+    }
+
+    /* Botões */
+    .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; font-size: 14px; }
+    .btn-primary { background: #1890ff; color: white; }
+    .btn-download { background: #28a745; color: white; margin-top: 10px; display: none; }
+    
+    .kpi { background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 10px; }
+    .kpi .v { font-size: 22px; font-weight: bold; color: #001529; }
+  </style>
+
+  <div class="card">
+    <div class="grid">
+      <div class="section">
+        <h3>Simulação Fiber Pro</h3>
+        <label>Quantidade de infraestruturas</label>
+        <input id="qty" type="number" value="1">
+        <label>Tempo (Horas)</label>
+        <input id="hours" type="number" value="7">
+        <label>Preço cobrado (R$)</label>
+        <input id="price" type="text" value="552">
+        
+        <button class="btn btn-primary" id="trigger-modal">Ver Resultados</button>
+      </div>
+
+      <div class="section results-locked" id="blur-area">
+        <h3>Seu Potencial</h3>
+        <div class="kpi"><div>Faturamento Atual</div><div class="v" id="outRevNow">R$ 0,00</div></div>
+        <div class="kpi"><div>Faturamento Potencial</div><div class="v" id="outRevFP">R$ 0,00</div></div>
+        <div class="kpi"><div>Multiplicador</div><div class="v" id="outFactor">0x</div></div>
+        <button class="btn btn-download" id="btn-print-final" onclick="window.print()">Baixar Resultado (PDF)</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="fiber-modal">
+    <div class="modal-content">
+      <h3 style="margin-top:0">Falta pouco!</h3>
+      <p style="font-size:13px; color:#666">Insira seus dados para destravar o resultado e receber o resumo por e-mail.</p>
+      <label>Nome Completo</label>
+      <input id="userName" type="text" placeholder="Ex: Sophia Alberton">
+      <label>E-mail Corporativo</label>
+      <input id="userEmail" type="email" placeholder="nome@empresa.com">
+      <button class="btn btn-primary" id="btn-submit-lead">Liberar e Baixar</button>
+    </div>
+  </div>
+  `;
+
+  // Lógica de cálculo idêntica à versão original
+  const inputs = {
+    qty: root.querySelector("#qty"),
+    hours: root.querySelector("#hours"),
+    price: root.querySelector("#price"),
+    name: root.querySelector("#userName"),
+    email: root.querySelector("#userEmail")
+  };
+
+  const out = {
+    revNow: root.querySelector("#outRevNow"),
+    revFP: root.querySelector("#outRevFP"),
+    factor: root.querySelector("#outFactor")
+  };
+
+  function updateValues() {
+    const qty = toNumber(inputs.qty.value);
+    const h = toNumber(inputs.hours.value);
+    const price = toNumber(inputs.price.value);
+    
+    const revNow = qty * price;
+    const revFP = (qty * (h * 60) / 30) * price;
+    const factor = revNow > 0 ? (revFP / revNow) : 0;
+
+    out.revNow.textContent = formatBRL(revNow);
+    out.revFP.textContent = formatBRL(revFP);
+    out.factor.textContent = factor.toFixed(1).replace(".", ",") + "x";
+    
+    return { revNow: out.revNow.textContent, revFP: out.revFP.textContent, factor: out.factor.textContent };
+  }
+
+  // Controle do Modal
+  const modal = root.querySelector("#fiber-modal");
+  root.querySelector("#trigger-modal").onclick = () => { modal.style.display = "flex"; };
+
+  // Submissão do Formulário
+  root.querySelector("#btn-submit-lead").onclick = function() {
+    if (!inputs.name.value || !inputs.email.value) {
+      alert("Por favor, preencha todos os campos.");
+      return;
+    }
+
+    const results = updateValues();
+    this.disabled = true;
+    this.textContent = "Enviando...";
+
+    // Envio EmailJS
+    emailjs.send('service_zd6gwj4', 'template_rvv0y31', {
+        to_email: inputs.email.value,
+        user_name: inputs.name.value,
+        rev_now: results.revNow,
+        rev_fp: results.revFP,
+        factor: results.factor,
+        explain: "Simulação realizada no site Fiber Pro FGM."
+    }).then(() => {
+        // Destrava a tela
+        modal.style.display = "none";
+        document.getElementById("blur-area").classList.remove("results-locked");
+        document.getElementById("blur-area").classList.add("results-unlocked");
+        document.getElementById("btn-print-final").style.display = "block";
+        alert("Sucesso! O resumo foi enviado para o seu e-mail.");
+    });
+  };
+
+  // Atualiza em tempo real enquanto digita
+  [inputs.qty, inputs.hours, inputs.price].forEach(el => el.oninput = updateValues);
+  updateValues();
+})();
+</script>
