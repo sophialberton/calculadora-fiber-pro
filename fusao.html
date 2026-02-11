@@ -126,6 +126,10 @@
       letter-spacing: .02em; color: rgba(0,0,0,.72);
     }
 
+    #fiberpro-app .results-locked { filter: blur(12px); pointer-events: none; user-select: none; opacity: 0.6; transition: 0.6s; }
+    #fiberpro-app .results-unlocked { filter: blur(0) !important; pointer-events: auto !important; opacity: 1 !important; }
+
+
     #fiberpro-app .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
     #fiberpro-app label { display: block; font-size: 11px; margin-bottom: 5px; color: #555; font-weight: 600; }
     #fiberpro-app input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; outline: none; }
@@ -140,7 +144,6 @@
     #fiberpro-app .btn { flex: 1; min-width: 140px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; background: #fff; font-weight: 600; font-size: 13px; transition: 0.2s; }
     #fiberpro-app .btn-primary { background: #1890ff; color: #fff; border-color: #1890ff; }
     #fiberpro-app .btn-primary:hover { background: #40a9ff; }
-    #fiberpro-app .btn-reset { border-color: #ff4d4f; color: #ff4d4f; }
     #fiberpro-app .btn-copy { border-color: #4da8ff; color: #4da8ff; }
 
     </style>
@@ -161,7 +164,7 @@
     </div>
 
     <div class="grid">
-      <div class="section no-print">
+      <div class="section no-print"> 
         <h3>Seu Cenário Atual</h3>
         <div class="row">
           <div><label>Quantidade de infraestruturas</label><input id="qty" type="number" value="1"></div>
@@ -172,23 +175,15 @@
           <div><label>Preço médio cobrado por infraestrutura (R$)</label><input id="price" type="text" value="552"></div>
           <div><label>Tempo com Fiber Pro (min/infra)</label><input id="fiberMin" type="number" value="30"></div>
         </div>
-
-        <div class="lead-form">
-            <label>Seu Nome</label>
-            <input id="userName" type="text" placeholder="Digite seu nome" style="margin-bottom:10px;">
-            <label>Seu E-mail</label>
-            <input id="userEmail" type="email" placeholder="email@exemplo.com">
-        </div>
         
         <div class="actions">
-          <button class="btn btn-primary" id="btn-email">Receber por E-mail</button>
-          <button class="btn" id="btn-print">Baixar / Imprimir</button>
-          <button class="btn btn-copy" id="btn-copy">Copiar</button>
-          <button class="btn btn-reset" id="btn-reset">Resetar</button>
+          <button class="btn btn-primary" >Ver Resultados</button>
+          <!--button class="btn" id="btn-print">Baixar / Imprimir</button-->
+          <!--button class="btn btn-copy" id="btn-copy">Copiar</button-->
         </div>
       </div>
 
-      <div class="section" id="result-area">
+      <div class="section results-locked" id="result-area">
         <h3>Potencial com Fiber Pro</h3>
         <div class="kpi"><div class="t">Quantidade total (mesmo tempo total)</div><div class="v" id="outQtyFP">14</div></div>
         <div class="kpi"><div class="t">Faturamento atual</div><div class="v" id="outRevNow">R$ 552,00</div></div>
@@ -243,7 +238,6 @@
     out.revFP.textContent = formatBRL(revFP);
     out.factor.textContent = factor.toFixed(1).replace(".", ",") + "x";
     
-    // A frase ajustada conforme seu pedido:
     out.explain.textContent = `Com Fiber Pro (${fiberMin} min/infra), no mesmo tempo total você pode produzir ~${Math.floor(qtyFP)} infraestruturas. Tempo atual total: ${totalMinutosAtual} min (≈ ${totalHorasAtual} h).`;
   }
 
@@ -253,39 +247,7 @@
     window.print();
   });
 
-root.querySelector("#btn-email").onclick = function() {
-    const emailDestinatario = inputs.userEmail.value;
-    const nomeUsuario = inputs.userName.value;
 
-    if (!emailDestinatario) {
-        alert("Por favor, preencha o e-mail.");
-        return;
-    }
-
-    this.textContent = "Enviando relatório...";
-    this.disabled = true;
-
-    const templateParams = {
-        to_email: emailDestinatario,
-        user_name: nomeUsuario || "Cliente",
-        rev_now: out.revNow.textContent,
-        rev_fp: out.revFP.textContent,
-        factor: out.factor.textContent,
-        explain: out.explain.textContent
-    };
-
-    emailjs.send('service_zd6gwj4', 'template_rvv0y31', templateParams)
-        .then(() => {
-           alert("Relatório enviado com sucesso para o corpo do e-mail!");
-           this.textContent = "Receber por E-mail";
-           this.disabled = false;
-        }, (err) => {
-           alert("Erro ao enviar.");
-           console.error(err);
-           this.textContent = "Receber por E-mail";
-           this.disabled = false;
-        });
-};
   // BOTÃO: COPIAR
   root.querySelector("#btn-copy").addEventListener("click", function() {
     const texto = `Fiber Pro - Resultados\nFaturamento Atual: ${out.revNow.textContent}\nFaturamento Potencial: ${out.revFP.textContent}\nMultiplicador: ${out.factor.textContent}`;
@@ -294,12 +256,7 @@ root.querySelector("#btn-email").onclick = function() {
       setTimeout(() => this.textContent = "Copiar", 2000);
     });
   });
-
-  // RESET E TABS
-  root.querySelector("#btn-reset").addEventListener("click", () => {
-    inputs.qty.value=1; inputs.hours.value=7; inputs.minutes.value=0; inputs.price.value=552; recalc();
-  });
-
+  
   root.querySelector("#tab-digital").onclick = () => { 
     root.querySelector("#tab-digital").classList.add("active");
     root.querySelector("#tab-analogico").classList.remove("active");
