@@ -60,7 +60,6 @@
         .modal-footer { font-size: 11px; color: #888; text-align: center; margin-top: 25px; border-top: 1px solid #f0f0f0; padding-top: 20px; }
 
         /* IMPRESSÃO */
-        /* Substitua o bloco @media print anterior por este: */
 @media print {
     @page { 
         margin: 0.5cm; /* Reduzi a margem para dar mais fôlego ao conteúdo */
@@ -269,25 +268,24 @@
         btn.textContent = 'Processando...';
 
         // Dados para o RD Station
-        const data = [
-            { name: 'nome', value: document.getElementById('uName').value + ' ' + document.getElementById('uSurname').value },
+        const data_array = [
             { name: 'email', value: document.getElementById('uEmail').value },
-            { name: 'mobile_phone', value: document.getElementById('uPhone').value },
+            { name: 'identificador', value: 'calculadora-fiber-pro' }, // Nome que aparecerá no RD
+            { name: 'nome', value: document.getElementById('uName').value + ' ' + document.getElementById('uSurname').value },
+            { name: 'telefone', value: document.getElementById('uPhone').value },
             { name: 'cf_cpf_cnpj', value: document.getElementById('uCPF').value },
-            // Dados da Calculadora como campos personalizados
             { name: 'cf_faturamento_atual', value: document.getElementById("outRevNow").textContent },
-            { name: 'cf_faturamento_fiberpro', value: document.getElementById("outRevFP").textContent },
-            { name: 'cf_multiplicador', value: document.getElementById("outFactor").textContent }
+            { name: 'cf_faturamento_fiberpro', value: document.getElementById("outRevFP").textContent }
         ];
 
-        // Chamada da API de Leads (Certifique-se que o código de rastreamento do RD está no site)
-        RdIntegration.post(data, function() {
+        // Envia para o RD Station
+        RdIntegration.post(data_array, function () {
+            // Lógica de liberar o PDF que já criamos
             document.getElementById('fiber-modal').style.display = 'none';
             document.getElementById('result-area').classList.remove('results-locked');
             document.getElementById('lock-text').style.display = 'none';
             document.getElementById("btn-download").style.display = "block";
-            document.getElementById("trigger-modal").style.display = "none";
-            alert('Relatório liberado com sucesso!');
+            alert('Relatório liberado!');
         });
     };
 
