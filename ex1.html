@@ -41,10 +41,11 @@
         .fp-card label { display: block; font-size: 10px; margin-bottom: 3px; color: #666; font-weight: 700; text-transform: uppercase; }
         .fp-card input { width: 100%; padding: 6px 10px; border: 1px solid #ccc; border-radius: 8px !important; font-size: 13px; margin-bottom: 8px; background: #fff; height: 36px; }
 
-        .fp-result-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        .fp-result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .kpi { background: #fff; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
+        .kpi.full { grid-column: span 2; }
         .kpi .t { font-size: 9px; color: #777; margin-bottom: 2px; text-transform: uppercase; }
-        .kpi .v { font-size: 18px; font-weight: bold; color: #000; }
+        .kpi .v { font-size: 16px; font-weight: bold; color: #000; }
         
         #outExplain { font-size: 11px; color: #666; line-height: 1.3; margin-top: 8px; }
         .results-locked { filter: blur(8px); pointer-events: none; opacity: 0.4; }
@@ -54,23 +55,33 @@
         .btn-primary { background: #1890ff !important; color: white !important; margin-top: 5px; }
         .btn-download { background: #001529 !important; color: white !important; margin-top: 8px; display: none; }
 
-        /* MODAL GOTHAM STYLE */
+        /* MODAL ESTILIZADO */
         #fiber-modal-overlay { display: none; position: fixed; z-index: 99999; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 21, 41, 0.92); align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .modal-box { background: white; padding: 35px 30px; border-radius: 20px; width: 95%; max-width: 480px; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
-        .modal-box h3 { font-size: 24px; color: #001529; margin: 0 0 10px 0; text-align: center; }
-        .modal-box p { text-align: center; font-size: 14px; margin-bottom: 20px; color: #666; }
+        .modal-box h3 { font-size: 22px; color: #001529; margin: 0 0 5px 0; text-align: center; font-weight: 700; }
+        .modal-box p.m-sub { font-size: 14px; color: #555; text-align: center; margin-bottom: 25px; }
+        
         .form-row { display: flex; gap: 12px; margin-bottom: 12px; }
         .form-group { flex: 1; display: flex; flex-direction: column; }
-        .form-group label { font-size: 12px !important; color: #333 !important; margin-bottom: 5px !important; text-transform: none !important; }
-        .btn-enviar { background: #001529 !important; color: white !important; border-radius: 6px !important; padding: 14px !important; margin-top: 10px; width: 100%; border:none; cursor:pointer; font-weight:bold; }
+        .form-group label { font-size: 12px !important; color: #333 !important; margin-bottom: 5px !important; text-transform: none !important; font-weight: 600 !important; }
         
-        .phone-input-group { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 6px; height: 38px; background: #fff; overflow: hidden; }
-        .country-flag { display: flex; align-items: center; padding: 0 8px; background: #f8f8f8; border-right: 1px solid #eee; height: 100%; font-size: 12px; }
-        .phone-input-group input { border: none !important; flex: 1; height: 100% !important; margin-bottom: 0 !important; }
+        .modal-box input[type="text"], .modal-box input[type="email"] { height: 40px; border-radius: 6px !important; margin-bottom: 0; border: 1px solid #ccc; padding: 0 12px; font-size: 14px; }
+        
+        .phone-input-group { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 6px; height: 40px; background: #fff; overflow: hidden; }
+        .country-flag { display: flex; align-items: center; padding: 0 10px; background: #f8f8f8; border-right: 1px solid #eee; height: 100%; font-size: 12px; color: #555; }
+        .country-flag img { width: 18px; margin-right: 5px; }
+        .phone-input-group input { border: none !important; flex: 1; height: 100% !important; margin-bottom: 0 !important; padding: 0 10px !important; font-size: 14px; }
+
+        .consent-row { display: flex; align-items: flex-start; gap: 8px; margin: 15px 0; font-size: 12px; color: #555; cursor: pointer; }
+        .consent-row input { width: auto; height: auto; margin-top: 3px; cursor: pointer; }
+        
+        .btn-enviar { background: #001529 !important; color: white !important; border-radius: 6px !important; padding: 14px !important; margin-top: 10px; width: 100%; border: none; cursor: pointer; font-weight: 700; }
+        .modal-footer { font-size: 10px; color: #888; text-align: center; margin-top: 20px; border-top: 1px solid #f0f0f0; padding-top: 15px; }
+        .modal-footer a { color: #1890ff; text-decoration: none; }
     </style>
 
     <div class="fp-card" id="fiber-printable-area">
-        <h2>Calculadora Fiber Pro</h2>
+        <h2 class="no-print">Calculadora Fiber Pro</h2>
         <p class="sub no-print">Compare seu cenário atual com o potencial usando Fiber Pro.</p>
         <div class="fp-badge no-print"><strong>Premissa:</strong> 1 infra a cada 30 min com Fiber Pro.</div>
 
@@ -98,10 +109,10 @@
                 <div class="results-locked" id="result-area">
                     <h3>Potencial Fiber Pro</h3>
                     <div class="fp-result-grid">
-                        <div class="kpi"><div class="t">Qtd total (mesmo tempo)</div><div class="v" id="outQtyFP">0</div></div>
+                        <div class="kpi full"><div class="t">Qtd total (mesmo tempo)</div><div class="v" id="outQtyFP">0</div></div>
                         <div class="kpi"><div class="t">Faturamento Atual</div><div class="v" id="outRevNow">R$ 0,00</div></div>
                         <div class="kpi"><div class="t">Faturamento previsto</div><div class="v" id="outRevFP">R$ 0,00</div></div>
-                        <div class="kpi"><div class="t">Você fatura mais de</div><div class="v" id="outFactor">0x</div></div>
+                        <div class="kpi full"><div class="t">Você fatura mais de</div><div class="v" id="outFactor">0x</div></div>
                     </div>
                     <p id="outExplain"></p>
                     <button class="btn btn-download no-print" id="btn-imprimir">BAIXAR RESULTADO (PDF)</button>
@@ -114,25 +125,35 @@
         <div class="modal-box">
             <button style="position:absolute; right:15px; top:10px; background:none; border:none; font-size:24px; cursor:pointer; color:#ccc;" id="close-modal">&times;</button>
             <h3>Falta pouco!</h3>
-            <p>Preencha para liberar seu relatório.</p>
+            <p class="m-sub">Preencha para liberar seu relatório.</p>
             <form id="lead-form-fiber">
                 <div class="form-row">
-                    <div class="form-group"><label>Nome*</label><input type="text" id="uName" required></div>
-                    <div class="form-group"><label>Sobrenome*</label><input type="text" id="uSurname" required></div>
+                    <div class="form-group"><label>Nome*</label><input type="text" id="uName" placeholder="Nome" required></div>
+                    <div class="form-group"><label>Sobrenome*</label><input type="text" id="uSurname" placeholder="Sobrenome" required></div>
                 </div>
-                <div class="form-group" style="margin-bottom:12px;"><label>Email*</label><input type="email" id="uEmail" required></div>
+                <div class="form-group" style="margin-bottom:12px;"><label>Email*</label><input type="email" id="uEmail" placeholder="email@empresa.com" required></div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Celular*</label>
                         <div class="phone-input-group">
-                            <div class="country-flag">🇧🇷 +55</div>
+                            <div class="country-flag">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg" alt="BR">
+                                <span>+55</span>
+                            </div>
                             <input type="text" id="uPhone" placeholder="(00) 00000-0000" required>
                         </div>
                     </div>
-                    <div class="form-group"><label>CPF/CNPJ*</label><input type="text" id="uCPF" required></div>
+                    <div class="form-group"><label>CPF/CNPJ*</label><input type="text" id="uCPF" placeholder="000.000.000-00" required></div>
+                </div>
+                <div class="consent-row">
+                    <input type="checkbox" id="consent" required>
+                    <label for="consent">Eu concordo em receber comunicações.</label>
                 </div>
                 <button type="submit" class="btn btn-enviar" id="btn-submit-lead">GERAR RELATÓRIO</button>
             </form>
+            <div class="modal-footer">
+                <p>Ao informar meus dados, eu concordo com a <a href="#" target="_blank">Política de Privacidade</a>.</p>
+            </div>
         </div>
     </div>
     `;
@@ -162,7 +183,7 @@
         rootContainer.querySelector("#outExplain").textContent = `* Produção estimada para o tempo total de ${totalMinNow} minutos.`;
     }
 
-    // IMPRESSÃO OTIMIZADA (COLUNA ÚNICA)
+    // Lógica de Impressão Refinada (Coluna Única)
     rootContainer.querySelector("#btn-imprimir").onclick = () => {
         const printContents = rootContainer.querySelector("#fiber-printable-area").cloneNode(true);
         printContents.querySelectorAll(".no-print").forEach(el => el.remove());
@@ -180,14 +201,15 @@
                     <style>
                         body { font-family: sans-serif; padding: 40px; color: #333; }
                         .fp-card { max-width: 600px; margin: 0 auto; }
-                        h2 { color: #001529; border-bottom: 2px solid #1890ff; padding-bottom: 10px; }
+                        h2 { color: #001529; border-bottom: 2px solid #1890ff; padding-bottom: 10px; margin-bottom: 20px; }
                         .fp-grid { display: block !important; }
-                        .fp-section { background: #f9f9f9; padding: 20px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 20px; }
+                        .fp-section { background: #f9f9f9; padding: 20px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 25px; }
+                        .fp-section h3 { font-size: 14px; color: #1890ff; text-transform: uppercase; margin-top: 0; }
                         .kpi { background: #fff; padding: 15px; border: 1px solid #eee; margin-bottom: 10px; border-radius: 8px; }
                         .kpi .t { font-size: 10px; color: #777; text-transform: uppercase; }
                         .kpi .v { font-size: 20px; font-weight: bold; }
                         label { font-size: 10px; font-weight: bold; color: #999; display: block; margin-top: 10px; }
-                        .val { font-size: 16px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; }
+                        .val { font-size: 16px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
                     </style>
                 </head>
                 <body>
@@ -195,12 +217,12 @@
                         <h2>Relatório de Produtividade Fiber Pro</h2>
                         <div class="fp-section">
                             <h3>Cenário Atual</h3>
-                            <label>QUANTIDADE:</label><div class="val">${qtyVal}</div>
+                            <label>QUANTIDADE DE INFRA:</label><div class="val">${qtyVal}</div>
                             <label>TEMPO POR INFRA:</label><div class="val">${timeVal}</div>
                             <label>PREÇO MÉDIO:</label><div class="val">R$ ${priceVal}</div>
                         </div>
                         <div class="fp-section">
-                            
+                            <h3>Resultado Estimado</h3>
                             ${printContents.querySelector("#result-area").innerHTML}
                         </div>
                     </div>
@@ -211,12 +233,12 @@
         printWindow.document.close();
     };
 
-    // ENVIO RD STATION
+    // Integração RD Station e Liberação de Resultados
     rootContainer.querySelector("#lead-form-fiber").onsubmit = function(e) {
         e.preventDefault();
         const btn = this.querySelector('#btn-submit-lead');
         btn.disabled = true;
-        btn.textContent = 'Enviando...';
+        btn.textContent = 'Processando...';
 
         const payload = {
             'token_rdstation': 'd3142b7b6b919d82c19fba9ac6883b3f',
@@ -235,25 +257,37 @@
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
-        }).then(() => {
+        })
+        .then(() => {
             rootContainer.querySelector("#fiber-modal-overlay").style.display = "none";
             rootContainer.querySelector("#result-area").classList.remove("results-locked");
             rootContainer.querySelector("#lock-text").style.display = "none";
             rootContainer.querySelector("#trigger-modal").style.display = "none";
             rootContainer.querySelector(".btn-download").style.display = "block";
+        })
+        .catch(err => {
+            console.error(err);
+            // Libera mesmo em caso de erro para não travar o lead
+            rootContainer.querySelector("#fiber-modal-overlay").style.display = "none";
+            rootContainer.querySelector("#result-area").classList.remove("results-locked");
         });
     };
 
-    // EVENTOS
+    // Eventos de Input e Tabs
     Object.values(inputs).forEach(el => el.oninput = recalc);
-    rootContainer.querySelector("#tab-digital").onclick = function() {
-        this.classList.add("active"); rootContainer.querySelector("#tab-analogico").classList.remove("active");
-        inputs.hours.value = 7; recalc();
+    
+    rootContainer.querySelector("#tab-digital").onclick = (e) => { 
+        rootContainer.querySelectorAll(".fp-tab").forEach(t => t.classList.remove("active"));
+        e.target.classList.add("active");
+        inputs.hours.value = 7; recalc(); 
     };
-    rootContainer.querySelector("#tab-analogico").onclick = function() {
-        this.classList.add("active"); rootContainer.querySelector("#tab-digital").classList.remove("active");
-        inputs.hours.value = 8; recalc();
+    
+    rootContainer.querySelector("#tab-analogico").onclick = (e) => { 
+        rootContainer.querySelectorAll(".fp-tab").forEach(t => t.classList.remove("active"));
+        e.target.classList.add("active");
+        inputs.hours.value = 8; recalc(); 
     };
+
     rootContainer.querySelector("#trigger-modal").onclick = () => { rootContainer.querySelector("#fiber-modal-overlay").style.display = "flex"; };
     rootContainer.querySelector("#close-modal").onclick = () => { rootContainer.querySelector("#fiber-modal-overlay").style.display = "none"; };
 
