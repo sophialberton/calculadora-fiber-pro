@@ -234,44 +234,52 @@
     };
 
     // REGISTRO DE LEAD (MÉTODO ROBUSTO)
-    rootContainer.querySelector("#lead-form-fiber").onsubmit = function(e) {
-        e.preventDefault();
-        const btn = this.querySelector('#btn-submit-lead');
-        btn.disabled = true;
-        btn.textContent = 'Enviando...';
+    // REGISTRO DE LEAD (SINCRONIZADO COM HTML DO MARKETING)
+rootContainer.querySelector("#lead-form-fiber").onsubmit = function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('#btn-submit-lead');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
 
-        // Usando URLSearchParams para garantir que o RD entenda os dados no modo no-cors
-        const params = new URLSearchParams();
-        params.append('token_rdstation', 'd3142b7b6b919d82c19fba9ac6883b3f');
-        params.append('identificador', 'calculadora-fiber-pro');
-        params.append('nome', rootContainer.querySelector('#uName').value + ' ' + rootContainer.querySelector('#uSurname').value);
-        params.append('email', rootContainer.querySelector('#uEmail').value);
-        params.append('mobile_phone', rootContainer.querySelector('#uPhone').value);
-        params.append('cf_cpf_cnpj', rootContainer.querySelector('#uCPF').value);
-        params.append('cf_quantidade_de_infraestrutura', inputs.qty.value);
-        params.append('cf_faturamento_atual', rootContainer.querySelector("#outRevNow").textContent);
-        params.append('cf_faturamento_previsto_com_fiber_pro', rootContainer.querySelector("#outRevFP").textContent);
-
-        fetch('https://www.rdstation.com.br/api/1.2/conversions', {
-            method: 'POST',
-            mode: 'no-cors', 
-            body: params
-        })
-        .then(() => {
-            // Sucesso (ou no-cors opaque response)
-            rootContainer.querySelector("#fiber-modal-overlay").style.display = "none";
-            rootContainer.querySelector("#result-area").classList.remove("results-locked");
-            rootContainer.querySelector("#lock-text").style.display = "none";
-            rootContainer.querySelector("#trigger-modal").style.display = "none";
-            rootContainer.querySelector(".btn-download").style.display = "block";
-        })
-        .catch(err => {
-            console.error("Erro no envio:", err);
-            // Libera de qualquer jeito para não travar o usuário
-            rootContainer.querySelector("#fiber-modal-overlay").style.display = "none";
-            rootContainer.querySelector("#result-area").classList.remove("results-locked");
-        });
+    // Captura dos dados com os nomes técnicos corretos
+    const leadData = {
+        token_rdstation: 'd3142b7b6b919d82c19fba9ac6883b3f',
+        identificador: 'calculadora-fiber-pro', // IGUAL AO QUE APARECE NA SUA BASE
+        email: rootContainer.querySelector('#uEmail').value,
+        nome: rootContainer.querySelector('#uName').value + ' ' + rootContainer.querySelector('#uSurname').value,
+        mobile_phone: rootContainer.querySelector('#uPhone').value,
+        cf_cpf_cnpj: rootContainer.querySelector('#uCPF').value,
+        
+        // Dados para o corpo do e-mail
+        cf_faturamento_atual: rootContainer.querySelector("#outRevNow").textContent,
+        cf_faturamento_previsto_com_fiber_pro: rootContainer.querySelector("#outRevFP").textContent,
+        cf_ganho_de_produtividade: rootContainer.querySelector("#outFactor").textContent,
+        cf_observacoes_calculadora: rootContainer.querySelector("#outExplain").textContent
     };
+
+    const params = new URLSearchParams();
+    Object.keys(leadData).forEach(key => params.append(key, leadData[key]));
+
+    fetch('https://www.rdstation.com.br/api/1.2/conversions', {
+        method: 'POST',
+        mode: 'no-cors', 
+        body: params
+    })
+    .then(() => {
+        // Sucesso visual
+        rootContainer.querySelector("#fiber-modal-overlay").style.display = "none";
+        rootContainer.querySelector("#result-area").classList.remove("results-locked");
+        rootContainer.querySelector("#lock-text").style.display = "none";
+        rootContainer.querySelector("#trigger-modal").style.display = "none";
+        rootContainer.querySelector(".btn-download").style.display = "block";
+        recalc();
+    })
+    .catch(err => {
+        console.error("Erro no envio:", err);
+        rootContainer.querySelector("#fiber-modal-overlay").style.display = "none";
+        rootContainer.querySelector("#result-area").classList.remove("results-locked");
+    });
+};
 
     Object.values(inputs).forEach(el => el.oninput = recalc);
     rootContainer.querySelector("#tab-digital").onclick = (e) => { 
