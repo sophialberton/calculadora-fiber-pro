@@ -60,65 +60,65 @@
         .consent-row { display: flex; align-items: flex-start; gap: 10px; margin: 25px 0 20px 0; }
         .modal-footer { font-size: 11px; color: #888; text-align: center; margin-top: 25px; border-top: 1px solid #f0f0f0; padding-top: 20px; }
 
-        /* IMPRESSÃO OTIMIZADA */
-@media print {
-    @page { 
-        margin: 0.5cm; /* Reduzi a margem para dar mais fôlego ao conteúdo */
-        size: auto; 
-    }
-    
-    html, body { 
-        height: auto !important; 
-        overflow: visible !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
+        /* IMPRESSÃO  */
+      @media print {
+          @page { 
+              margin: 0.5cm;
+              size: auto; 
+          }
+          
+          html, body { 
+              height: auto !important; 
+              overflow: visible !important;
+              margin: 0 !important;
+              padding: 0 !important;
+          }
 
-    #fiberpro-app { 
-        background: white !important; 
-        padding: 0 !important; 
-        min-height: 0 !important; 
-        display: block !important;
-    }
-    
-    .no-print, .tabs, .badge, #trigger-modal, .lock-overlay, .close-btn, .btn-download, #fiber-modal { 
-        display: none !important; 
-    }
+          #fiberpro-app { 
+              background: white !important; 
+              padding: 0 !important; 
+              min-height: 0 !important; 
+              display: block !important;
+          }
+          
+          .no-print, .tabs, .badge, #trigger-modal, .lock-overlay, .close-btn, .btn-download, #fiber-modal { 
+              display: none !important; 
+          }
 
-    /* Remove as setas dos campos numéricos na impressão */
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
+          /* Remove as setas dos campos numéricos na impressão */
+          input::-webkit-outer-spin-button,
+          input::-webkit-inner-spin-button {
+              -webkit-appearance: none;
+              margin: 0;
+          }
 
-    .results-locked { filter: none !important; opacity: 1 !important; }
-    
-    .card { 
-        box-shadow: none !important; 
-        border: none !important; 
-        width: 100% !important; 
-        margin: 0 !important; 
-        padding: 0 !important;
-        break-after: avoid; /* Impede a criação de página extra após o card */
-    }
+          .results-locked { filter: none !important; opacity: 1 !important; }
+          
+          .card { 
+              box-shadow: none !important; 
+              border: none !important; 
+              width: 100% !important; 
+              margin: 0 !important; 
+              padding: 0 !important;
+              break-after: avoid; /* Impede a criação de página extra após o card */
+          }
 
-    .grid { display: block !important; }
-    
-    .section { 
-        background: #fff !important; 
-        border: 1px solid #eee !important; 
-        margin-bottom: 10px !important; 
-        padding: 15px !important;
-        page-break-inside: avoid; 
-    }
+          .grid { display: block !important; }
+          
+          .section { 
+              background: #fff !important; 
+              border: 1px solid #eee !important; 
+              margin-bottom: 10px !important; 
+              padding: 15px !important;
+              page-break-inside: avoid; 
+          }
 
-    input { 
-        border: none !important; 
-        font-weight: bold !important; 
-        background: transparent !important;
-        margin-bottom: 0 !important; /* Remove espaço extra que empurra o conteúdo */
-    }
+          input { 
+              border: none !important; 
+              font-weight: bold !important; 
+              background: transparent !important;
+              margin-bottom: 0 !important; /* Remove espaço extra que empurra o conteúdo */
+          }
 }
     </style>
 </head>
@@ -282,7 +282,7 @@
 
       // Substitua pelo seu Token de Integração que fica nas configurações do RD Station
       //var token = 'SEU_TOKEN_AQUI';
-        RdIntegration.post(data_array, function () {
+      RdIntegration.post(data_array, function () {
             // LIBERAÇÃO APÓS SUCESSO NO RD
             document.getElementById('fiber-modal').style.display = 'none';
             document.getElementById('result-area').classList.remove('results-locked');
@@ -291,7 +291,26 @@
             document.getElementById("trigger-modal").style.display = "none";
             alert('Relatório liberado!');
         });
-    };
+
+        // DENTRO DO lead-form.onsubmit:
+
+        const callbackRD = function () {
+            if (window.rdProcessed) return; // Evita executar duas vezes
+            window.rdProcessed = true;
+            
+            document.getElementById('fiber-modal').style.display = 'none';
+            document.getElementById('result-area').classList.remove('results-locked');
+            document.getElementById('lock-text').style.display = 'none';
+            document.getElementById("btn-download").style.display = "block";
+            document.getElementById("trigger-modal").style.display = "none";
+        };
+
+        // Tenta enviar para o RD
+        RdIntegration.post(data_array, callbackRD);
+
+        // Segurança: Se o RD demorar mais de 3 segundos, libera o resultado de qualquer jeito
+        setTimeout(callbackRD, 3000);
+      };
 
     document.getElementById("tab-digital").onclick = function() {
         this.classList.add("active"); document.getElementById("tab-analogico").classList.remove("active");
