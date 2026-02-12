@@ -1,0 +1,365 @@
+<!--Observe esse codigo -->
+
+<div id="fiberpro-calculadora"></div>
+
+<script>
+(function () {
+  const root = document.getElementById("fiberpro-calculadora");
+  if (!root) return;
+
+  // ---------- helpers ----------
+  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+  const toNumber = (v) => {
+    if (v === null || v === undefined) return 0;
+    const s = String(v).trim().replace(/\./g, "").replace(",", ".");
+    const n = Number(s);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const formatBRL = (value) => {
+    try {
+      return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+    } catch {
+      return "R$ " + (Math.round(value * 100) / 100).toFixed(2).replace(".", ",");
+    }
+  };
+
+  const formatNumberBR = (value, digits=2) => {
+    try {
+      return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: digits }).format(value);
+    } catch {
+      return String(value);
+    }
+  };
+
+  // ---------- UI ----------
+  root.innerHTML = `
+  <style>
+    #fiberpro-calculadora * { box-sizing: border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    #fiberpro-calculadora .fp-wrap{
+      width: 100%;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    #fiberpro-calculadora .fp-card{
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.06);
+      background: #fff;
+    }
+    #fiberpro-calculadora .fp-header h2{
+      margin: 0 0 6px 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+    #fiberpro-calculadora .fp-header p{
+      margin: 0;
+      color: rgba(0,0,0,.7);
+      font-size: 14px;
+    }
+
+    #fiberpro-calculadora .fp-grid{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 16px;
+    }
+    @media (min-width: 860px){
+      #fiberpro-calculadora .fp-grid{
+        grid-template-columns: 1.05fr .95fr;
+        gap: 18px;
+      }
+    }
+
+    #fiberpro-calculadora .fp-section{
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(0,0,0,.02);
+    }
+    #fiberpro-calculadora .fp-section h3{
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      color: rgba(0,0,0,.72);
+    }
+
+    #fiberpro-calculadora .fp-row{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    @media (min-width: 520px){
+      #fiberpro-calculadora .fp-row.cols-2 { grid-template-columns: 1fr 1fr; }
+      #fiberpro-calculadora .fp-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    #fiberpro-calculadora label{
+      display: block;
+      font-size: 12px;
+      color: rgba(0,0,0,.72);
+      margin-bottom: 6px;
+    }
+    #fiberpro-calculadora input, #fiberpro-calculadora select{
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,.14);
+      background: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    #fiberpro-calculadora input:focus, #fiberpro-calculadora select:focus{
+      border-color: rgba(0,0,0,.28);
+      box-shadow: 0 0 0 3px rgba(0,0,0,.06);
+    }
+
+    #fiberpro-calculadora .fp-kpi{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    #fiberpro-calculadora .fp-kpi .k{
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.08);
+    }
+    #fiberpro-calculadora .fp-kpi .k .t{
+      font-size: 12px;
+      color: rgba(0,0,0,.7);
+      margin-bottom: 4px;
+    }
+    #fiberpro-calculadora .fp-kpi .k .v{
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+    #fiberpro-calculadora .fp-note{
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(0,0,0,.65);
+      line-height: 1.35;
+    }
+
+    #fiberpro-calculadora .fp-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.06);
+      font-size: 12px;
+      color: rgba(0,0,0,.72);
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    #fiberpro-calculadora .fp-actions{
+      display:flex;
+      gap:10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    #fiberpro-calculadora button{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.14);
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    #fiberpro-calculadora button:hover{ background: rgba(0,0,0,.03); }
+  </style>
+
+  <div class="fp-wrap">
+    <div class="fp-card">
+      <div class="fp-header">
+        <h2>Calculadora Fiber Pro</h2>
+        <p>Descubra seu potencial de crescimento comparando seu cenário atual com o potencial usando Fiber Pro.</p>
+        <div class="fp-badge">
+          <strong>Premissa:</strong> com Fiber Pro, você finaliza <strong>1 infraestrutura a cada 30 min</strong>.
+        </div>
+      </div>
+
+      <div class="fp-grid">
+        <div class="fp-section">
+          <h3>Seu cenário atual</h3>
+
+          <div class="fp-row cols-3">
+            <div>
+              <label for="fp_qty">Quantidade de infraestruturas</label>
+              <input id="fp_qty" inputmode="numeric" type="number" min="0" step="1" value="1" />
+            </div>
+            <div>
+              <label for="fp_hours">Tempo por infraestrutura (horas)</label>
+              <input id="fp_hours" inputmode="numeric" type="number" min="0" step="1" value="7" />
+            </div>
+            <div>
+              <label for="fp_minutes">Tempo por infraestrutura (minutos)</label>
+              <input id="fp_minutes" inputmode="numeric" type="number" min="0" step="1" value="0" />
+            </div>
+          </div>
+
+          <div class="fp-row cols-2">
+            <div>
+              <label for="fp_price">Preço médio cobrado por infraestrutura (R$)</label>
+              <input id="fp_price" inputmode="decimal" type="text" value="552" />
+            </div>
+            <div>
+              <label for="fp_fiber_minutes">Tempo com Fiber Pro (min/infra)</label>
+              <input id="fp_fiber_minutes" inputmode="numeric" type="number" min="1" step="1" value="30" />
+            </div>
+          </div>
+
+          <div class="fp-actions">
+            <button id="fp_reset" type="button">Resetar exemplo</button>
+            <button id="fp_copy" type="button">Copiar resultados</button>
+          </div>
+
+          <div class="fp-note">
+            *Neste cenário, mantemos o mesmo preço que você cobra hoje. Ajuste os valores acima para refletir sua realidade.
+          </div>
+        </div>
+
+        <div class="fp-section">
+          <h3>Potencial com Fiber Pro</h3>
+
+          <div class="fp-kpi">
+            <div class="k">
+              <div class="t">Quantidade total (mesmo tempo total)</div>
+              <div class="v" id="k_qty_fp">—</div>
+            </div>
+
+            <div class="k">
+              <div class="t">Faturamento atual</div>
+              <div class="v" id="k_rev_now">—</div>
+            </div>
+
+            <div class="k">
+              <div class="t">Faturamento previsto com Fiber Pro</div>
+              <div class="v" id="k_rev_fp">—</div>
+            </div>
+
+            <div class="k">
+              <div class="t">Você fatura mais de</div>
+              <div class="v" id="k_factor">—</div>
+            </div>
+          </div>
+
+          <div class="fp-note" id="k_detail">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
+
+  // ---------- logic ----------
+  const els = {
+    qty: root.querySelector("#fp_qty"),
+    hours: root.querySelector("#fp_hours"),
+    minutes: root.querySelector("#fp_minutes"),
+    price: root.querySelector("#fp_price"),
+    fiberMinutes: root.querySelector("#fp_fiber_minutes"),
+    kQtyFP: root.querySelector("#k_qty_fp"),
+    kRevNow: root.querySelector("#k_rev_now"),
+    kRevFP: root.querySelector("#k_rev_fp"),
+    kFactor: root.querySelector("#k_factor"),
+    kDetail: root.querySelector("#k_detail"),
+    btnReset: root.querySelector("#fp_reset"),
+    btnCopy: root.querySelector("#fp_copy"),
+  };
+
+  function recalc() {
+    const qty = clamp(Math.floor(toNumber(els.qty.value)), 0, 1000000);
+    const h = clamp(Math.floor(toNumber(els.hours.value)), 0, 1000000);
+    const m = clamp(Math.floor(toNumber(els.minutes.value)), 0, 59);
+    const price = clamp(toNumber(els.price.value), 0, 1e12);
+    const fiberMin = clamp(Math.floor(toNumber(els.fiberMinutes.value)), 1, 1000000);
+
+    const minutesPerInfra = h * 60 + m;
+
+    // tempo total do cenário atual (min)
+    const totalMinutesNow = qty * minutesPerInfra;
+
+    // quantidade potencial com Fiber Pro no mesmo tempo total
+    const qtyFP = fiberMin > 0 ? (totalMinutesNow / fiberMin) : 0;
+
+    const revNow = qty * price;
+    const revFP = qtyFP * price;
+
+    const factor = revNow > 0 ? (revFP / revNow) : 0;
+
+    els.kQtyFP.textContent = formatNumberBR(qtyFP, 2);
+    els.kRevNow.textContent = formatBRL(revNow);
+    els.kRevFP.textContent = formatBRL(revFP);
+    els.kFactor.textContent = factor > 0 ? (formatNumberBR(factor, 2) + "x") : "—";
+
+    const timeInfo = `Tempo atual total: ${formatNumberBR(totalMinutesNow, 0)} min (≈ ${formatNumberBR(totalMinutesNow/60, 2)} h).`;
+    const note = (qty === 0 || minutesPerInfra === 0)
+      ? "Preencha a quantidade e o tempo atual para ver o comparativo."
+      : `Com Fiber Pro (${fiberMin} min/infra), no mesmo tempo total você pode produzir ~${formatNumberBR(qtyFP, 2)} infraestruturas. ${timeInfo}`;
+    els.kDetail.textContent = note;
+  }
+
+  // format price input as user types (accepts 552 / 552,50 / 1.234,56)
+  function normalizePriceField() {
+    const n = toNumber(els.price.value);
+    // keep empty if user clears
+    if (String(els.price.value).trim() === "") return;
+    els.price.value = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(n);
+  }
+
+  // events
+  ["input", "change"].forEach(evt => {
+    els.qty.addEventListener(evt, recalc);
+    els.hours.addEventListener(evt, recalc);
+    els.minutes.addEventListener(evt, recalc);
+    els.fiberMinutes.addEventListener(evt, recalc);
+    els.price.addEventListener(evt, recalc);
+  });
+  els.price.addEventListener("blur", () => { normalizePriceField(); recalc(); });
+
+  els.btnReset.addEventListener("click", () => {
+    els.qty.value = 1;
+    els.hours.value = 7;
+    els.minutes.value = 0;
+    els.price.value = "552";
+    els.fiberMinutes.value = 30;
+    normalizePriceField();
+    recalc();
+  });
+
+  els.btnCopy.addEventListener("click", async () => {
+    recalc();
+    const text =
+      `Calculadora Fiber Pro\n` +
+      `Qtd atual: ${els.qty.value}\n` +
+      `Tempo atual: ${els.hours.value}h ${els.minutes.value}min\n` +
+      `Preço: R$ ${els.price.value}\n` +
+      `Tempo Fiber Pro: ${els.fiberMinutes.value} min/infra\n\n` +
+      `Qtd com Fiber Pro: ${els.kQtyFP.textContent}\n` +
+      `Faturamento atual: ${els.kRevNow.textContent}\n` +
+      `Faturamento com Fiber Pro: ${els.kRevFP.textContent}\n` +
+      `Multiplicador: ${els.kFactor.textContent}\n`;
+    try {
+      await navigator.clipboard.writeText(text);
+      els.btnCopy.textContent = "Copiado!";
+      setTimeout(() => (els.btnCopy.textContent = "Copiar resultados"), 1200);
+    } catch {
+      alert(text);
+    }
+  });
+
+  // init
+  normalizePriceField();
+  recalc();
+})();
+</script>
+
+
+<!-- Preciso que o proximo codigo siga as mesma proporções, mas mantenha as novidades e mudanças, inclusive o botao de imprimir deve imprir APENAS o conteudo da calculadora, ignorando todo o resto do site-->

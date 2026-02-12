@@ -248,12 +248,6 @@
         const revFP = qtyFP * p;
         const factor = revNow > 0 ? (revFP / revNow) : 0;
 
-      /*
-      document.getElementById('result-area').classList.remove('results-locked');
-      document.getElementById('lock-text').style.display = 'none';
-      document.getElementById('btn-download').style.display = 'block';
-*/
-
         document.getElementById("outQtyFP").textContent = Math.floor(qtyFP);
         document.getElementById("outRevNow").textContent = formatBRL(revNow);
         document.getElementById("outRevFP").textContent = formatBRL(revFP);
@@ -266,38 +260,26 @@
     // INTEGRAÇÃO RD STATION
     document.getElementById('lead-form').onsubmit = function(e) {
         e.preventDefault();
+        
         const btn = this.querySelector('.btn-enviar');
         btn.disabled = true;
         btn.textContent = 'Processando...';
 
-        const data_array = [
-            { name: 'email', value: document.getElementById('uEmail').value },
-            { name: 'identificador', value: 'calculadora-fiber-pro' },
-            { name: 'nome', value: document.getElementById('uName').value + ' ' + document.getElementById('uSurname').value },
-            { name: 'telefone', value: document.getElementById('uPhone').value },
-            { name: 'cf_cpf_cnpj', value: document.getElementById('uCPF').value },
-            { name: 'cf_faturamento_atual', value: document.getElementById("outRevNow").textContent },
-            { name: 'cf_faturamento_fiberpro', value: document.getElementById("outRevFP").textContent }
-        ];
+        // Coleta os dados do formulário
+        const payload = {
+            'token_rdstation': 'd3142b7b6b919d82c19fba9ac6883b3f',
+            'identificador': 'calculadora-fiber-pro',
+            'nome': document.getElementById('uName').value + ' ' + document.getElementById('uSurname').value,
+            'email': document.getElementById('uEmail').value,
+            'mobile_phone': document.getElementById('uPhone').value,
+            'cf_cpf_cnpj': document.getElementById('uCPF').value,
+            'cf_quantidade_de_infraestrutura': inputs.qty.value,
+            'cf_faturamento_atual': document.getElementById("outRevNow").textContent,
+            'cf_faturamento_previsto_com_fiber_pro': document.getElementById("outRevFP").textContent
+        };
 
-      // Substitua pelo seu Token de Integração que fica nas configurações do RD Station
-      //var token = 'SEU_TOKEN_AQUI';
-      RdIntegration.post(data_array, function () {
-            // LIBERAÇÃO APÓS SUCESSO NO RD
-            document.getElementById('fiber-modal').style.display = 'none';
-            document.getElementById('result-area').classList.remove('results-locked');
-            document.getElementById('lock-text').style.display = 'none';
-            document.getElementById("btn-download").style.display = "block";
-            document.getElementById("trigger-modal").style.display = "none";
-            alert('Relatório liberado!');
-        });
-
-        // DENTRO DO lead-form.onsubmit:
-
+        // Função para liberar a tela após o envio
         const callbackRD = function () {
-            if (window.rdProcessed) return; // Evita executar duas vezes
-            window.rdProcessed = true;
-            
             document.getElementById('fiber-modal').style.display = 'none';
             document.getElementById('result-area').classList.remove('results-locked');
             document.getElementById('lock-text').style.display = 'none';
@@ -305,12 +287,23 @@
             document.getElementById("trigger-modal").style.display = "none";
         };
 
-        // Tenta enviar para o RD
-        RdIntegration.post(data_array, callbackRD);
-
-        // Segurança: Se o RD demorar mais de 3 segundos, libera o resultado de qualquer jeito
-        setTimeout(callbackRD, 3000);
-      };
+        // ENVIO VIA FETCH (Mais moderno e não depende da biblioteca externa que pode estar falhando)
+        fetch('https://www.rdstation.com.br/api/1.2/conversions', {
+            method: 'POST',
+            mode: 'no-cors', // Necessário para evitar erros de política de segurança (CORS) com o RD
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            console.log("Dados enviados com sucesso!");
+            callbackRD();
+            alert('Relatório liberado!');
+        })
+        .catch((error) => {
+            console.error("Erro ao enviar:", error);
+            callbackRD(); // Libera mesmo com erro para não travar o usuário
+        });
+    };
 
     document.getElementById("tab-digital").onclick = function() {
         this.classList.add("active"); document.getElementById("tab-analogico").classList.remove("active");
