@@ -152,7 +152,7 @@
                 <button type="submit" class="btn btn-enviar" id="btn-submit-lead">GERAR RELATÓRIO</button>
             </form>
             <div class="modal-footer">
-                <p>Ao informar meus dados, eu concordo com a <a href="#" target="_blank">Política de Privacidade</a>.</p>
+                <p>Ao informar meus dados, eu concordo com a <a href="https://fgmdentalgroup.com/politica-de-privacidade/" target="_blank" rel="noopener noreferrer" style="color: #1890ff; text-decoration: underline;">Política de Privacidade</a>.</p>
             </div>
         </div>
     </div>
@@ -233,7 +233,6 @@
         printWindow.document.close();
     };
 
-    // REGISTRO DE LEAD (MÉTODO ROBUSTO)
     // REGISTRO DE LEAD (SINCRONIZADO COM HTML DO MARKETING)
 rootContainer.querySelector("#lead-form-fiber").onsubmit = function(e) {
     e.preventDefault();
@@ -244,7 +243,7 @@ rootContainer.querySelector("#lead-form-fiber").onsubmit = function(e) {
     // Captura dos dados com os nomes técnicos corretos
     const leadData = {
         token_rdstation: 'd3142b7b6b919d82c19fba9ac6883b3f',
-        identificador: 'calculadora-fiber-pro',
+        identificador: 'br-imp-calculadora-fiber-pro',
         email: rootContainer.querySelector('#uEmail').value,
         nome: rootContainer.querySelector('#uName').value + ' ' + rootContainer.querySelector('#uSurname').value,
         mobile_phone: rootContainer.querySelector('#uPhone').value,
@@ -272,7 +271,6 @@ rootContainer.querySelector("#lead-form-fiber").onsubmit = function(e) {
         body: params
     })
     .then(() => {
-        // Sucesso visual
         rootContainer.querySelector("#fiber-modal-overlay").style.display = "none";
         rootContainer.querySelector("#result-area").classList.remove("results-locked");
         rootContainer.querySelector("#lock-text").style.display = "none";
