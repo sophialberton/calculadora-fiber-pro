@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Labirinto com BFS e DFS - Explicação Detalhada</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .algorithm-explanation {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    #generate {
+      background-color: #2ecc71;
+      color: white;
+    }
+    #bfs {
+      background-color: #3498db;
+      color: white;
+    }
+    #dfs {
+      background-color: #e74c3c;
+      color: white;
+    }
+    #reset {
+      background-color: #7f8c8d;
+      color: white;
+    }
+    #pause {
+      background-color: #f39c12;
+      color: white;
+    }
+    button:disabled {
+      background-color: #95a5a6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .stats {
+      background-color: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .stats p {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+    .stats span {
+      font-weight: bold;
+    }
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .color-box {
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+    }
+    .wall {
+      background-color: #2c3e50;
+    }
+    .start {
+      background-color: #2ecc71;
+    }
+    .goal {
+      background-color: #e74c3c;
+    }
+    .path {
+      background-color: #f1c40f;
+    }
+    .visited {
+      background-color: #9b59b6;
+    }
+    .frontier {
+      background-color: #3498db;
+    }
+    .current {
+      background-color: #e67e22;
+    }
+    .maze-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+      background-color: white;
+    }
+    td {
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      border: 1px solid #ddd;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    .speed-control {
+      margin: 15px 0;
+      text-align: center;
+    }
+    .speed-control label {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Busca em Labirinto - BFS e DFS com Explicação</h1>
+  
+  <div class="algorithm-explanation">
+    <h2>Como funcionam os algoritmos:</h2>
+    <p><strong>BFS (Busca em Largura)</strong>: Explora todos os vizinhos do nível atual antes de avançar. Usa uma fila (FIFO). Encontra o caminho mais curto.</p>
+    <p><strong>DFS (Busca em Profundidade)</strong>: Explora o máximo possível em uma direção antes de retroceder. Usa uma pilha (LIFO). Pode ser mais rápido mas não garante o caminho mais curto.</p>
+  </div>
+  
+  <div class="controls">
+    <button id="generate" onclick="generateMaze()">Gerar Labirinto</button>
+    <button id="bfs" onclick="solve('BFS')">Resolver com BFS</button>
+    <button id="dfs" onclick="solve('DFS')">Resolver com DFS</button>
+    <button id="pause" onclick="togglePause()">Pausar/Continuar</button>
+    <button id="reset" onclick="resetMaze()">Reiniciar</button>
+  </div>
+  
+  <div class="speed-control">
+    <label for="speed">Velocidade:</label>
+    <input type="range" id="speed" min="50" max="500" value="200" onchange="changeSpeed(this.value)">
+    <span id="speed-value">200ms</span>
+  </div>
+  
+  <div class="stats">
+    <div>
+      <p>Status: <span id="status">Pronto para gerar um labirinto</span></p>
+      <p>Algoritmo: <span id="algorithm">-</span></p>
+      <p>Passos executados: <span id="steps">0</span></p>
+    </div>
+    <div>
+      <p>Células na fronteira: <span id="frontier">0</span></p>
+      <p>Células visitadas: <span id="visited">0</span></p>
+      <p>Tamanho do caminho: <span id="path-length">0</span></p>
+    </div>
+  </div>
+  
+  <div class="legend">
+    <div class="legend-item">
+      <div class="color-box start"></div>
+      <span>Início (2)</span>
+    </div>
+    <div class="legend-item">
+      <div class="color-box goal"></div>
+      <span>Objetivo (3)</span>
+    </div>
+    <div class="legend-item">
+      <div class="color-box wall"></div>
+      <span>Parede (1)</span>
+    </div>
+    <div class="legend-item">
+      <div class="color-box current"></div>
+      <span>Célula Atual</span>
+    </div>
+    <div class="legend-item">
+      <div class="color-box frontier"></div>
+      <span>Fronteira</span>
+    </div>
+    <div class="legend-item">
+      <div class="color-box visited"></div>
+      <span>Visitada</span>
+    </div>
+    <div class="legend-item">
+      <div class="color-box path"></div>
+      <span>Caminho</span>
+    </div>
+  </div>
+  
+  <div class="maze-container">
+    <table id="maze"></table>
+  </div>
+
+  <script>
+    const n = 10; // Ordem da matriz (até 10)
+    let maze = []; // Matriz do labirinto
+    let startCell = { row: 0, col: 0 }; // Célula inicial (valor 2)
+    let goalCell = { row: 0, col: 0 };  // Célula objetivo (valor 3)
+    let isSolving = false;
+    let isPaused = false;
+    let visitedCount = 0;
+    let frontierCount = 0;
+    let currentSteps = 0;
+    let currentAlgorithm = '';
+    let searchInterval;
+    let delay = 200;
+
+    // Valores para representar o labirinto
+    const WALL = 1;
+    const START = 2;
+    const GOAL = 3;
+    const PATH = 4;
+    const VISITED = 5;
+    const CURRENT = 6;
+    const FRONTIER = 7;
+
+    // Gerar labirinto inicial
+    generateMaze();
+
+    // Função para gerar um labirinto com valores 0, 1, 2 e 3
+    function generateMaze() {
+      if (isSolving) return;
+      
+      document.getElementById("status").textContent = "Gerando labirinto...";
+      maze = [];
+      
+      // Inicializar com zeros (caminhos livres)
+      for (let i = 0; i < n; i++) {
+        maze[i] = [];
+        for (let j = 0; j < n; j++) {
+          maze[i][j] = 0;
+        }
+      }
+      
+      // Adicionar paredes (valor 1) - aproximadamente 20% das células
+      for (let i = 0; i < n * n * 0.2; i++) {
+        const row = Math.floor(Math.random() * n);
+        const col = Math.floor(Math.random() * n);
+        // Não colocar paredes no início ou fim
+        if (!(row === 0 && col === 0) && !(row === n-1 && col === n-1)) {
+          maze[row][col] = WALL;
+        }
+      }
+      
+      // Definir ponto de início (valor 2) - sempre no canto superior esquerdo
+      maze[0][0] = START;
+      startCell = { row: 0, col: 0 };
+      
+      // Definir ponto objetivo (valor 3) - sempre no canto inferior direito
+      maze[n-1][n-1] = GOAL;
+      goalCell = { row: n-1, col: n-1 };
+      
+      resetStats();
+      renderMaze();
+      document.getElementById("status").textContent = "Labirinto gerado. Clique em BFS ou DFS para resolver.";
+    }
+
+    // Função para reiniciar o labirinto
+    function resetMaze() {
+      if (isSolving) {
+        clearInterval(searchInterval);
+        isSolving = false;
+      }
+      
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (maze[i][j] === PATH || maze[i][j] === VISITED || maze[i][j] === CURRENT || maze[i][j] === FRONTIER) {
+            maze[i][j] = 0;
+          }
+        }
+      }
+      
+      maze[startCell.row][startCell.col] = START;
+      maze[goalCell.row][goalCell.col] = GOAL;
+      
+      resetStats();
+      renderMaze();
+      document.getElementById("status").textContent = "Labirinto reiniciado. Clique em BFS ou DFS para resolver.";
+    }
+
+    // Alterar velocidade de visualização
+    function changeSpeed(value) {
+      delay = parseInt(value);
+      document.getElementById("speed-value").textContent = value + "ms";
+    }
+
+    // Pausar/continuar a execução
+    function togglePause() {
+      if (!isSolving) return;
+      
+      isPaused = !isPaused;
+      document.getElementById("status").textContent = 
+        isPaused ? "Execução pausada" : `Executando ${currentAlgorithm}...`;
+    }
+
+    // Reiniciar estatísticas
+    function resetStats() {
+      visitedCount = 0;
+      frontierCount = 0;
+      currentSteps = 0;
+      document.getElementById("steps").textContent = "0";
+      document.getElementById("visited").textContent = "0";
+      document.getElementById("frontier").textContent = "0";
+      document.getElementById("path-length").textContent = "0";
+      document.getElementById("algorithm").textContent = "-";
+    }
+
+    // Função para renderizar o labirinto na página
+    function renderMaze() {
+      const table = document.createElement("table");
+      
+      for (let i = 0; i < n; i++) {
+        const tr = document.createElement("tr");
+        
+        for (let j = 0; j < n; j++) {
+          const td = document.createElement("td");
+          
+          if (maze[i][j] === WALL) {
+            td.className = "wall";
+            td.textContent = "1";
+          } else if (maze[i][j] === START) {
+            td.className = "start";
+            td.textContent = "2";
+          } else if (maze[i][j] === GOAL) {
+            td.className = "goal";
+            td.textContent = "3";
+          } else if (maze[i][j] === PATH) {
+            td.className = "path";
+          } else if (maze[i][j] === VISITED) {
+            td.className = "visited";
+          } else if (maze[i][j] === CURRENT) {
+            td.className = "current";
+          } else if (maze[i][j] === FRONTIER) {
+            td.className = "frontier";
+          }
+          
+          tr.appendChild(td);
+        }
+        
+        table.appendChild(tr);
+      }
+      
+      const mazeDiv = document.getElementById("maze");
+      mazeDiv.innerHTML = "";
+      mazeDiv.appendChild(table);
+    }
+
+    // Função para verificar se uma célula é o objetivo
+    function isGoal(row, col) {
+      return row === goalCell.row && col === goalCell.col;
+    }
+
+    // Função sucessor - retorna vizinhos válidos nas 4 direções
+    function getSuccessors(row, col) {
+      const successors = [];
+      const directions = [
+        {dr: -1, dc: 0}, // Cima
+        {dr: 1, dc: 0},  // Baixo
+        {dr: 0, dc: -1}, // Esquerda
+        {dr: 0, dc: 1}   // Direita
+      ];
+      
+      for (const dir of directions) {
+        const newRow = row + dir.dr;
+        const newCol = col + dir.dc;
+        
+        // Verificar se está dentro dos limites e não é parede
+        if (newRow >= 0 && newRow < n && newCol >= 0 && newCol < n && 
+            maze[newRow][newCol] !== WALL) {
+          successors.push({row: newRow, col: newCol});
+        }
+      }
+      
+      return successors;
+    }
+
+    // Função para resolver o labirinto usando BFS ou DFS
+    function solve(algorithm) {
+      if (isSolving) return;
+      
+      isSolving = true;
+      isPaused = false;
+      currentAlgorithm = algorithm;
+      currentSteps = 0;
+      visitedCount = 0;
+      frontierCount = 0;
+      
+      document.getElementById("status").textContent = `Executando ${algorithm}...`;
+      document.getElementById("algorithm").textContent = algorithm;
+      document.getElementById("generate").disabled = true;
+      document.getElementById("bfs").disabled = true;
+      document.getElementById("dfs").disabled = true;
+      document.getElementById("reset").disabled = true;
+      
+      // Reiniciar células visitadas e caminho
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (maze[i][j] === PATH || maze[i][j] === VISITED || 
+              maze[i][j] === CURRENT || maze[i][j] === FRONTIER) {
+            maze[i][j] = 0;
+          }
+        }
+      }
+      
+      maze[startCell.row][startCell.col] = START;
+      maze[goalCell.row][goalCell.col] = GOAL;
+      renderMaze();
+      
+      // Estruturas para BFS/DFS
+      const frontier = [{row: startCell.row, col: startCell.col, path: []}];
+      const visited = new Set();
+      visited.add(`${startCell.row},${startCell.col}`);
+      frontierCount = 1;
+      
+      // Função para executar um passo da busca
+      function searchStep() {
+        if (isPaused) {
+          setTimeout(searchStep, 100);
+          return;
+        }
+        
+        if (frontier.length === 0) {
+          document.getElementById("status").textContent = `${algorithm}: Não foi possível encontrar uma solução!`;
+          isSolving = false;
+          document.getElementById("generate").disabled = false;
+          document.getElementById("bfs").disabled = false;
+          document.getElementById("dfs").disabled = false;
+          document.getElementById("reset").disabled = false;
+          return;
+        }
+        
+        // Escolher próximo nó com base no algoritmo
+        const current = algorithm === 'BFS' ? frontier.shift() : frontier.pop();
+        frontierCount--;
+        currentSteps++;
+        
+        // Atualizar estatísticas
+        document.getElementById("steps").textContent = currentSteps;
+        document.getElementById("frontier").textContent = frontierCount;
+        
+        // Marcar a célula atual (CURRENT) - exceto se for início ou objetivo
+        if (!(current.row === startCell.row && current.col === startCell.col) &&
+            !(current.row === goalCell.row && current.col === goalCell.col)) {
+          maze[current.row][current.col] = CURRENT;
+        }
+        
+        renderMaze();
+        
+        // Verificar se é o objetivo
+        if (isGoal(current.row, current.col)) {
+          // Marcar o caminho (PATH)
+          for (const cell of current.path) {
+            if (!(cell.row === startCell.row && cell.col === startCell.col) &&
+                !(cell.row === goalCell.row && cell.col === goalCell.col)) {
+              maze[cell.row][cell.col] = PATH;
+            }
+          }
+          
+          renderMaze();
+          document.getElementById("status").textContent = 
+            `${algorithm}: Solução encontrada em ${currentSteps} passos! Caminho tem ${current.path.length + 1} células.`;
+          document.getElementById("path-length").textContent = current.path.length + 1;
+          isSolving = false;
+          document.getElementById("generate").disabled = false;
+          document.getElementById("bfs").disabled = false;
+          document.getElementById("dfs").disabled = false;
+          document.getElementById("reset").disabled = false;
+          return;
+        }
+        
+        // Obter sucessores
+        const successors = getSuccessors(current.row, current.col);
+        
+        for (const successor of successors) {
+          const key = `${successor.row},${successor.col}`;
+          
+          if (!visited.has(key)) {
+            visited.add(key);
+            visitedCount++;
+            frontierCount++;
+            
+            frontier.push({
+              row: successor.row,
+              col: successor.col,
+              path: [...current.path, {row: current.row, col: current.col}]
+            });
+            
+            // Marcar como fronteira (FRONTIER) - exceto se for objetivo
+            if (!isGoal(successor.row, successor.col)) {
+              maze[successor.row][successor.col] = FRONTIER;
+            }
+          }
+        }
+        
+        document.getElementById("visited").textContent = visitedCount;
+        document.getElementById("frontier").textContent = frontierCount;
+        
+        // Remover marcação de célula atual após processá-la e marcá-la como visitada
+        if (!(current.row === startCell.row && current.col === startCell.col) &&
+            !(current.row === goalCell.row && current.col === goalCell.col)) {
+          maze[current.row][current.col] = VISITED;
+        }
+        
+        setTimeout(searchStep, delay);
+      }
+      
+      // Iniciar a busca
+      searchStep();
+    }
+  </script>
+</body>
+</html>
