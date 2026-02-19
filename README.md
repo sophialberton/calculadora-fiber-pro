@@ -19,3 +19,19 @@ Obrigada Sophia!
 Como conversamos, segue em anexo o html do formulário de captação + html do e-mail marketing 
 
 Me chama pra testarmos juntas, acho que o formulário deve aparecer como um pop-up ou uma 2º tela, como se fosse um segundo passo, pra pessoa inserir os dados > baixar o arquivo > receber um resumo no email
+
+
+---
+
+Olá, segue ajustes
+
+No botão de aceite, ajustar texto para:
+
+✅Eu concordo em receber comunicações.
+Ao informar meus dados, eu concordo com a Política de Privacidade.
+
+Ao utilizar esta calculadora, você está ciente de que os dados fornecidos poderão ser utilizados para: (i) geração da simulação personalizada; (ii) análises estratégicas e estudos de mercado; e (iii) envio de comunicações, caso autorizado. O tratamento ocorrerá nos termos da LGPD. Para mais informações, consulte nossa Política de Privacidade.
+
+Comunicação via e-mail contendo ofertas personalizadas de acordo com seu interesse pelo prazo de 12 meses. A qualquer momento é possível renovar ou revogar este consentimento através do “opt-out” ou no nosso site fgmdentalgroup.com, na opção “Direitos do Titular”.
+
+Seguir conforme print abaixo, na mesma sequência
