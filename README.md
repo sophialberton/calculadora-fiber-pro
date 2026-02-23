@@ -35,3 +35,10 @@ Ao utilizar esta calculadora, você está ciente de que os dados fornecidos pode
 Comunicação via e-mail contendo ofertas personalizadas de acordo com seu interesse pelo prazo de 12 meses. A qualquer momento é possível renovar ou revogar este consentimento através do “opt-out” ou no nosso site fgmdentalgroup.com, na opção “Direitos do Titular”.
 
 Seguir conforme print abaixo, na mesma sequência
+
+---
+
+Os campos: Cidade, estado, Especialidade e demais campos de Faturamento atual, Faturamento previsto com Fiber Pro, Preço médio, Quantidade total, Tempo por Infraestrutura por minuto, Você fatura mais de
+
+Não estão coletando dados na hora de exportar os leads, segue exemplo abaixo de como está aparecendo.
+Consegue ajustar para que tenhamos esses dados na base?
