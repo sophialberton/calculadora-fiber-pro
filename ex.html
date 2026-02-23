@@ -305,22 +305,20 @@
             mobile_phone: rootContainer.querySelector('#uPhone').value,
             cf_cpf_cnpj: rootContainer.querySelector('#uCPF').value,
             cf_especialidade: rootContainer.querySelector('#cf_especialidade').value,
-            
-            // Novos campos de localização
             city: rootContainer.querySelector('#uCity').value, 
             state: rootContainer.querySelector('#uState').value,
 
-            // Dados do cálculo que você solicitou
+            // DADOS COLETADOS DOS INPUTS
             cf_quantidade_de_infraestrutura: rootContainer.querySelector('#qty').value,
             cf_tempo_por_infraestrutura_por_hora: rootContainer.querySelector('#hours').value,
             cf_tempo_por_infraestrutura_por_minuto: rootContainer.querySelector('#minutes').value,
             cf_preco_medio: rootContainer.querySelector('#price').value,
 
-            // Resultados finais
-            cf_quantidade_total: rootContainer.querySelector("#outQtyFP").textContent,
-            cf_faturamento_atual: rootContainer.querySelector("#outRevNow").textContent,
-            cf_faturamento_previsto_com_fiber_pro: rootContainer.querySelector("#outRevFP").textContent,
-            cf_voce_fatura_mais_de: rootContainer.querySelector("#outFactor").textContent 
+            // DADOS COLETADOS DOS RESULTADOS (Pegando o texto que aparece na tela)
+            cf_quantidade_total: rootContainer.querySelector("#outQtyFP").innerText,
+            cf_faturamento_atual: rootContainer.querySelector("#outRevNow").innerText,
+            cf_faturamento_previsto_com_fiber_pro: rootContainer.querySelector("#outRevFP").innerText,
+            cf_voce_fatura_mais_de: rootContainer.querySelector("#outFactor").innerText 
         };
         const params = new URLSearchParams();
         Object.keys(leadData).forEach(key => params.append(key, leadData[key]));

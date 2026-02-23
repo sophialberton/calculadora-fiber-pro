@@ -42,3 +42,5 @@ Os campos: Cidade, estado, Especialidade e demais campos de Faturamento atual, F
 
 Não estão coletando dados na hora de exportar os leads, segue exemplo abaixo de como está aparecendo.
 Consegue ajustar para que tenhamos esses dados na base?
+
+![alt text](image.png)
